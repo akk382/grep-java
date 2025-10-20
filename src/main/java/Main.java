@@ -1,3 +1,4 @@
+import machines.CharacterClassMatcher;
 import machines.DigitMatcher;
 import machines.LiteralMatcher;
 
@@ -29,6 +30,8 @@ public class Main {
       return LiteralMatcher.match(inputLine, pattern.charAt(0));
     } else if (pattern.equals("\\d")) {
         return DigitMatcher.match(inputLine);
+    } else if (pattern.equals("\\w")) {
+        return CharacterClassMatcher.match(inputLine);
     }
 
     else {

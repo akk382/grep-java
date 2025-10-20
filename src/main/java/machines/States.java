@@ -1,6 +1,9 @@
 package machines;
 
 public enum States {
+    WORD_CLASS_MATCH,
+    WORD_CLASS_MATCH_ANYWHERE,
+    WORD_CLASS_MATCHED,
     DIGIT_MATCH,
     DIGIT_MATCH_ANYWHERE,
     DIGIT_MATCHED,
