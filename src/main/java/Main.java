@@ -1,3 +1,4 @@
+import machines.DigitMatcher;
 import machines.LiteralMatcher;
 
 import java.io.IOException;
@@ -26,7 +27,11 @@ public class Main {
   public static boolean matchPattern(String inputLine, String pattern) {
     if (pattern.length() == 1) {
       return LiteralMatcher.match(inputLine, pattern.charAt(0));
-    } else {
+    } else if (pattern.equals("\\d")) {
+        return DigitMatcher.match(inputLine);
+    }
+
+    else {
       throw new RuntimeException("Unhandled pattern: " + pattern);
     }
   }
