@@ -1,5 +1,6 @@
 package machines;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +19,7 @@ public class CharacterGroups {
         Map<CaptureGroupType, List<Character>> captureGroups = new HashMap<>();
         while (patternFromNextToBrace.charAt(i) != ']') {
             char c = patternFromNextToBrace.charAt(i);
-            List<Character> characters = captureGroups.get(CaptureGroupType.CHAR);
+            List<Character> characters = captureGroups.getOrDefault(CaptureGroupType.CHAR, new ArrayList<>());
             characters.add(c);
             captureGroups.put(CaptureGroupType.CHAR, characters);
 //            if (c == '-') {} // We will deal with this later
