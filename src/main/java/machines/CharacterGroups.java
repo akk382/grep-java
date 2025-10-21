@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CharacterGroups {
-    public static StatePos match(String input, String patternFromNextToBrace, StatePos currStatePos) {
-        if (currStatePos == null) currStatePos = new StatePos(States.POS_GROUP_MATCH_ANYWHERE, 0);
+    public static StatePos match(String input, String patternFromNextToBrace, StatePos currStatePos, boolean reverseDirection) {
+        if (currStatePos == null) currStatePos = new StatePos(States.POS_GROUP_MATCH_ANYWHERE, !reverseDirection ? 0 : input.length() - 1);
         if (currStatePos.getCurrInputPos() >= input.length()) {
             return new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
         }
@@ -23,7 +23,7 @@ public class CharacterGroups {
             }
             case POS_GROUP_MATCH_NEXT -> {
                 if (captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(currStatePos.getCurrInputPos())))
-                    yield new StatePos(States.POS_GROUP_MATCHED, currStatePos.getCurrInputPos() + 1);
+                    yield new StatePos(States.POS_GROUP_MATCHED, !reverseDirection ? currStatePos.getCurrInputPos() + 1 : currStatePos.getCurrInputPos() - 1);
                 yield new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
             }
             default -> new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
@@ -44,7 +44,7 @@ public class CharacterGroups {
         return captureGroups;
     }
 
-    public static StatePos negativeMatch(String input, String patternFromNextToBrace, StatePos currStatePos) {
+    public static StatePos negativeMatch(String input, String patternFromNextToBrace, StatePos currStatePos, boolean reverseDirection) {
         if (currStatePos == null) currStatePos = new StatePos(States.NEG_GROUP_MATCH_ANYWHERE, 0);
         if (currStatePos.getCurrInputPos() >= input.length()) {
             return new StatePos(States.NEG_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());

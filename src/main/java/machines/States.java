@@ -27,4 +27,6 @@ public enum States {
     NEG_GROUP_MATCH_ANYWHERE,
     NEG_GROUP_NOT_MATCHED,
     NEG_GROUP_MATCHED,
+
+    END_STATE,
 }
