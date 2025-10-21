@@ -48,14 +48,14 @@ public class Main {
                         new StatePos(States.POS_GROUP_MATCH_ANYWHERE, 0) :
                         new StatePos(States.POS_GROUP_MATCH_NEXT, currState.getCurrInputPos());
                 currState = CharacterGroups.match(inputLine, pattern.substring(token.getPos()), currState);
-                if (currState.getState() != States.POS_GROUP_NOT_MATCHED) System.exit(1);
+                if (currState.getState() != States.POS_GROUP_MATCHED) System.exit(1);
                 break;
             case NEGATIVE_GROUP:
                 currState = currState.getCurrInputPos() == 0 ?
                         new StatePos(States.NEG_GROUP_MATCH_ANYWHERE, 0) :
                         new StatePos(States.NEG_GROUP_MATCH_NEXT, currState.getCurrInputPos());
                 currState = CharacterGroups.negativeMatch(inputLine, pattern.substring(token.getPos()), currState);
-                if (currState.getState() != States.NEG_GROUP_NOT_MATCHED) System.exit(1);
+                if (currState.getState() != States.NEG_GROUP_MATCHED) System.exit(1);
                 break;
             case NON_WORD:
             case NON_DIGIT:
