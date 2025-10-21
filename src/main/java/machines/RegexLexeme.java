@@ -1,6 +1,7 @@
 package machines;
 
 public enum RegexLexeme {
+    STARTS_WITH,
     LITERAL,
     DIGIT,
     NON_DIGIT,
