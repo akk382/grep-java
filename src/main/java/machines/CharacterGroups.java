@@ -27,4 +27,12 @@ public class CharacterGroups {
         }
         return captureGroups;
     }
+
+    public static boolean negativeMatch(String input, String patternFromNextToBrace) {
+        Map<CaptureGroupType, List<Character>> captureGroups = extractCaptureGroup(patternFromNextToBrace);
+        for (int i = 0; i < input.length(); i++) {
+            if (!captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(i))) return true;
+        }
+        return false;
+    }
 }

@@ -34,7 +34,7 @@ public class Main {
     } else if (pattern.equals("\\w")) {
         return CharacterClassMatcher.match(inputLine);
     } else if (pattern.startsWith("[^")) {
-        return !CharacterGroups.match(inputLine, pattern.substring(2));
+        return CharacterGroups.negativeMatch(inputLine, pattern.substring(2));
     }  else if (pattern.startsWith("[")) {
         return CharacterGroups.match(inputLine, pattern.substring(1));
     }
