@@ -5,15 +5,16 @@ public class Tester {
     public static void main(String[] args) {
         InputStream originalSystemIn = System.in;
 
-//        test(new String[]{"-E", "\\d\\d\\d apples"}, "sally has 124 apples", 0);
-//        test(new String[]{"-E", "\\d apple"}, "sally has 3 apple", 0);
-//        test(new String[]{"-E", "\\d apple"}, "sally has 1 orange", 1);
-        test(new String[]{"-E", "[^xyz]"}, "apple", 0);
+//        test(new String[]{"-E", "\\d\\d\\d apples"}, "sally has 124 apples");
+//        test(new String[]{"-E", "\\d apple"}, "sally has 3 apple");
+//        test(new String[]{"-E", "\\d apple"}, "sally has 1 orange");
+//        test(new String[]{"-E", "[^xyz]"}, "apple");
+        test(new String[]{"-E", "[^abc]"}, "apple");
 
         System.setIn(originalSystemIn);
     }
 
-    private static void test(String[] args, String input, int expectedExitStatus) {
+    private static void test(String[] args, String input) {
         ByteArrayInputStream bais = new ByteArrayInputStream(input.getBytes());
         System.setIn(bais);
         Main.main(args);
