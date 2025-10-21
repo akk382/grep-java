@@ -6,12 +6,25 @@ import java.util.List;
 import java.util.Map;
 
 public class CharacterGroups {
-    public static boolean match(String input, String patternFromNextToBrace) {
+    public static StatePos match(String input, String patternFromNextToBrace, StatePos currStatePos) {
+        if (currStatePos == null) currStatePos = new StatePos(States.POS_GROUP_MATCH_ANYWHERE, 0);
         Map<CaptureGroupType, List<Character>> captureGroups = extractCaptureGroup(patternFromNextToBrace);
-        for (int i = 0; i < input.length(); i++) {
-            if (captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(i))) return true;
-        }
-        return false;
+
+        return switch (currStatePos.getState()) {
+            case POS_GROUP_MATCH_ANYWHERE -> {
+                for (int i = 0; i < input.length(); i++) {
+                    if (captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(i)))
+                        yield new StatePos(States.POS_GROUP_MATCHED, i + 1);
+                }
+                yield new StatePos(States.POS_GROUP_NOT_MATCHED, 0);
+            }
+            case POS_GROUP_MATCH_NEXT -> {
+                if (captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(currStatePos.getCurrInputPos())))
+                    yield new StatePos(States.POS_GROUP_MATCHED, currStatePos.getCurrInputPos() + 1);
+                yield new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
+            }
+            default -> new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
+        };
     }
 
     private static Map<CaptureGroupType, List<Character>> extractCaptureGroup(String patternFromNextToBrace) {
@@ -28,11 +41,24 @@ public class CharacterGroups {
         return captureGroups;
     }
 
-    public static boolean negativeMatch(String input, String patternFromNextToBrace) {
+    public static StatePos negativeMatch(String input, String patternFromNextToBrace, StatePos currStatePos) {
+        if (currStatePos == null) currStatePos = new StatePos(States.NEG_GROUP_MATCH_ANYWHERE, 0);
         Map<CaptureGroupType, List<Character>> captureGroups = extractCaptureGroup(patternFromNextToBrace);
-        for (int i = 0; i < input.length(); i++) {
-            if (!captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(i))) return true;
-        }
-        return false;
+
+        return switch (currStatePos.getState()) {
+            case NEG_GROUP_MATCH_ANYWHERE -> {
+                for (int i = 0; i < input.length(); i++) {
+                    if (!captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(currStatePos.getCurrInputPos())))
+                        yield new StatePos(States.NEG_GROUP_MATCHED, currStatePos.getCurrInputPos() + 1);
+                }
+                yield new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
+            }
+            case NEG_GROUP_MATCH_NEXT -> {
+                if (!captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(currStatePos.getCurrInputPos())))
+                    yield new StatePos(States.NEG_GROUP_MATCHED, currStatePos.getCurrInputPos() + 1);
+                yield new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
+            }
+            default -> new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
+        };
     }
 }

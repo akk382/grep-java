@@ -1,23 +1,25 @@
 package machines;
 
 public class DigitMatcher {
-    public static boolean match(String input, States currentState) {
-        if (currentState == null) currentState = States.DIGIT_MATCH_ANYWHERE;
-        return switch (currentState) {
-            case DIGIT_MATCH -> false;
+    public static StatePos match(String input, StatePos currentStatePos) {
+        if (currentStatePos == null) currentStatePos = new StatePos(States.DIGIT_MATCH_ANYWHERE, 0);
+        return switch (currentStatePos.getState()) {
+            case DIGIT_MATCH_NEXT -> Character.isDigit(input.charAt(currentStatePos.getCurrInputPos())) ?
+                    new StatePos(States.DIGIT_MATCHED, currentStatePos.getCurrInputPos() + 1) :
+                    new StatePos(States.DIGIT_NOT_MATCHED, currentStatePos.getCurrInputPos());
             case DIGIT_MATCH_ANYWHERE -> {
                 for (int i = 0; i < input.length(); i++) {
                     if (Character.isDigit(input.charAt(i))) {
-                        yield true;
+                        yield new StatePos(States.DIGIT_MATCHED, i + 1);
                     }
                 }
-                yield false;
+                yield new StatePos(States.DIGIT_NOT_MATCHED, currentStatePos.getCurrInputPos());
             }
-            default -> false;
+            default -> new StatePos(States.DIGIT_NOT_MATCHED, currentStatePos.getCurrInputPos());
         };
     }
 
-    public static boolean match(String input) {
-        return match(input, States.DIGIT_MATCH_ANYWHERE);
+    public static StatePos match(String input) {
+        return match(input, new StatePos(States.DIGIT_MATCH_ANYWHERE, 0));
     }
 }

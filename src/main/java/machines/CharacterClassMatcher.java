@@ -2,23 +2,26 @@ package machines;
 
 // Should match any alphanumeric character:- A-Za-z0-9_
 public class CharacterClassMatcher {
-    public static boolean match(String input, States currentState) {
-        if (currentState == null) currentState = States.WORD_CLASS_MATCH_ANYWHERE;
-        return switch (currentState) {
-            case WORD_CLASS_MATCH -> false;
+    public static StatePos match(String input, StatePos currentStatePos) {
+        if (currentStatePos == null) currentStatePos = new StatePos(States.WORD_CLASS_MATCH_ANYWHERE, 0);
+        return switch (currentStatePos.getState()) {
+            case WORD_CLASS_MATCH_NEXT -> Character.isLetterOrDigit(input.charAt(currentStatePos.getCurrInputPos())) ||
+                    '_' == input.charAt(currentStatePos.getCurrInputPos()) ?
+                    new StatePos(States.WORD_CLASS_MATCHED, currentStatePos.getCurrInputPos() + 1) :
+                    new StatePos(States.WORD_CLASS_NOT_MATCHED, currentStatePos.getCurrInputPos());
             case WORD_CLASS_MATCH_ANYWHERE -> {
                 for (int i = 0; i < input.length(); i++) {
                     if (Character.isLetterOrDigit(input.charAt(i)) || '_' == input.charAt(i)) {
-                        yield true;
+                        yield new StatePos(States.WORD_CLASS_MATCHED, currentStatePos.getCurrInputPos() + 1);
                     }
                 }
-                yield false;
+                yield new StatePos(States.WORD_CLASS_NOT_MATCHED, currentStatePos.getCurrInputPos());
             }
-            default -> false;
+            default -> new StatePos(States.WORD_CLASS_NOT_MATCHED, currentStatePos.getCurrInputPos());
         };
     }
 
-    public static boolean match(String input) {
-        return match(input, States.WORD_CLASS_MATCH_ANYWHERE);
+    public static StatePos match(String input) {
+        return match(input, new StatePos(States.WORD_CLASS_MATCH_ANYWHERE, 0));
     }
 }
