@@ -48,7 +48,7 @@ public class Main {
             currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
             i++;
           } while (i < minOcc && currState.getState() == LITERAL_MATCHED);
-          if (i < minOcc) System.exit(1);
+          if (currState.getState() != LITERAL_MATCHED) System.exit(1);
           else {
             while (currState.getState() == LITERAL_MATCHED) {
               currState.setState(LITERAL_MATCH_NEXT);
@@ -57,17 +57,17 @@ public class Main {
           }
           break;
         case LITERAL_STAR:
-          currState = currState.getState() != START_STATE ?
-                  new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
-                  new StatePos(LITERAL_MATCH_ANYWHERE, 0);
-          minOcc = tokens.get(tokenPos).getMinOccurrences();
-          i = 0;
-          do {
-            currState.setState(currState.getState() == LITERAL_MATCHED ? LITERAL_MATCH_NEXT : currState.getState());
-            currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
-            i++;
-          } while (i < minOcc || currState.getState() == LITERAL_MATCHED);
-          if (i < minOcc) System.exit(1);
+//          currState = currState.getState() != START_STATE ?
+//                  new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
+//                  new StatePos(LITERAL_MATCH_ANYWHERE, 0);
+//          minOcc = tokens.get(tokenPos).getMinOccurrences();
+//          i = 0;
+//          do {
+//            currState.setState(currState.getState() == LITERAL_MATCHED ? LITERAL_MATCH_NEXT : currState.getState());
+//            currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
+//            i++;
+//          } while (i < minOcc || currState.getState() == LITERAL_MATCHED);
+//          if (i < minOcc) System.exit(1);
           break;
         case LITERAL_QUE:
 //          currState = currState.getState() != START_STATE ?
@@ -98,7 +98,7 @@ public class Main {
             currState = DigitMatcher.match(inputLine, currState, matchInReverseDirection);
             i++;
           } while (i < minOcc && currState.getState() == DIGIT_MATCHED);
-          if (i < minOcc) System.exit(1);
+          if (currState.getState() != DIGIT_MATCHED) System.exit(1);
           else {
             while (currState.getState() == DIGIT_MATCHED) {
               currState.setState(DIGIT_MATCH_NEXT);
@@ -124,7 +124,7 @@ public class Main {
             currState = CharacterClassMatcher.match(inputLine, currState, matchInReverseDirection);
             i++;
           } while (i < minOcc && currState.getState() == WORD_CLASS_MATCHED);
-          if (i < minOcc) System.exit(1);
+          if (currState.getState() != WORD_CLASS_MATCHED) System.exit(1);
           else {
             while (currState.getState() == WORD_CLASS_MATCHED) {
               currState.setState(WORD_CLASS_MATCH_NEXT);
@@ -152,7 +152,7 @@ public class Main {
             i++;
           } while (i < minOcc && currState.getState() == POS_GROUP_MATCHED);
 
-          if (i < minOcc) System.exit(1);
+          if (currState.getState() != POS_GROUP_MATCHED) System.exit(1);
           else {
             while (currState.getState() == POS_GROUP_MATCHED) {
               currState.setState(POS_GROUP_MATCH_NEXT);
@@ -179,7 +179,7 @@ public class Main {
             i++;
           } while (i < minOcc && currState.getState() == NEG_GROUP_MATCHED);
 
-          if (i < minOcc) System.exit(1);
+          if (currState.getState() != NEG_GROUP_MATCHED) System.exit(1);
           else {
             while (currState.getState() == NEG_GROUP_MATCHED) {
               currState.setState(NEG_GROUP_MATCH_NEXT);

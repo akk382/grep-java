@@ -14,7 +14,8 @@ public class Tester {
 //        test(new String[]{"-E", "apple$"}, "mango_apple");
 //        test(new String[]{"-E", "^banana$"}, "banana_banana");
 //    test(new String[]{"-E", "^banana$"}, "banana");
-    test(new String[]{"-E", "ca+at"}, "caaats");
+//    test(new String[]{"-E", "ca+at"}, "caaats");
+    test(new String[]{"-E", "ca+t"}, "act");
 
     System.setIn(originalSystemIn);
   }
