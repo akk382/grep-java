@@ -13,7 +13,8 @@ public class Tester {
 //        test(new String[]{"-E", "\\d \\w\\w\\ws"}, "sally has 1 dog");
 //        test(new String[]{"-E", "apple$"}, "mango_apple");
 //        test(new String[]{"-E", "^banana$"}, "banana_banana");
-    test(new String[]{"-E", "^banana$"}, "banana");
+//    test(new String[]{"-E", "^banana$"}, "banana");
+    test(new String[]{"-E", "ca+at"}, "caaats");
 
     System.setIn(originalSystemIn);
   }

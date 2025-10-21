@@ -26,6 +26,7 @@ public class Main {
     StatePos currState = new StatePos(matchInReverseDirection ? END_STATE : START_STATE, matchInReverseDirection ? inputLine.length() - 1 : 0);
 
     int tokenPos = !matchInReverseDirection ? 0 : tokens.size() - 1;
+    int minOcc = 0, i = 0, maxOcc = 0;
 
     while (tokenPos > -1 && tokenPos < tokens.size()) {
       switch (tokens.get(tokenPos).getLexeme()) {
@@ -40,8 +41,14 @@ public class Main {
           currState = currState.getState() != START_STATE ?
                   new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(LITERAL_MATCH_ANYWHERE, 0);
-          currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
-          if (currState.getState() != LITERAL_MATCHED) System.exit(1);
+          minOcc = tokens.get(tokenPos).getMinOccurrences();
+          i = 0;
+          do {
+            currState.setState(currState.getState() == LITERAL_MATCHED ? LITERAL_MATCH_NEXT : currState.getState());
+            currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
+            i++;
+          } while (i < minOcc && currState.getState() == LITERAL_MATCHED);
+          if (i < minOcc) System.exit(1);
           else {
             while (currState.getState() == LITERAL_MATCHED) {
               currState.setState(LITERAL_MATCH_NEXT);
@@ -53,21 +60,25 @@ public class Main {
           currState = currState.getState() != START_STATE ?
                   new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(LITERAL_MATCH_ANYWHERE, 0);
+          minOcc = tokens.get(tokenPos).getMinOccurrences();
+          i = 0;
           do {
             currState.setState(currState.getState() == LITERAL_MATCHED ? LITERAL_MATCH_NEXT : currState.getState());
             currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
-          } while (currState.getState() == LITERAL_MATCHED);
+            i++;
+          } while (i < minOcc || currState.getState() == LITERAL_MATCHED);
+          if (i < minOcc) System.exit(1);
           break;
         case LITERAL_QUE:
-          currState = currState.getState() != START_STATE ?
-                  new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
-                  new StatePos(LITERAL_MATCH_ANYWHERE, 0);
-          currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
-          if (currState.getState() == LITERAL_MATCHED) {
-            currState.setState(LITERAL_MATCH_NEXT);
-            if (LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection).getState() == LITERAL_MATCHED)
-              System.exit(1);
-          }
+//          currState = currState.getState() != START_STATE ?
+//                  new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
+//                  new StatePos(LITERAL_MATCH_ANYWHERE, 0);
+//          currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
+//          if (currState.getState() == LITERAL_MATCHED) {
+//            currState.setState(LITERAL_MATCH_NEXT);
+//            if (LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection).getState() == LITERAL_MATCHED)
+//              System.exit(1);
+//          }
           break;
         case DIGIT:
           currState = currState.getState() != START_STATE ?
@@ -80,8 +91,14 @@ public class Main {
           currState = currState.getState() != START_STATE ?
                   new StatePos(DIGIT_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(DIGIT_MATCH_ANYWHERE, 0);
-          currState = DigitMatcher.match(inputLine, currState, matchInReverseDirection);
-          if (currState.getState() != DIGIT_MATCHED) System.exit(1);
+          minOcc = tokens.get(tokenPos).getMinOccurrences();
+          i = 0;
+          do {
+            currState.setState(currState.getState() == DIGIT_MATCHED ? DIGIT_MATCH_NEXT : currState.getState());
+            currState = DigitMatcher.match(inputLine, currState, matchInReverseDirection);
+            i++;
+          } while (i < minOcc && currState.getState() == DIGIT_MATCHED);
+          if (i < minOcc) System.exit(1);
           else {
             while (currState.getState() == DIGIT_MATCHED) {
               currState.setState(DIGIT_MATCH_NEXT);
@@ -100,8 +117,14 @@ public class Main {
           currState = currState.getState() != START_STATE ?
                   new StatePos(WORD_CLASS_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(WORD_CLASS_MATCH_ANYWHERE, 0);
-          currState = CharacterClassMatcher.match(inputLine, currState, matchInReverseDirection);
-          if (currState.getState() != WORD_CLASS_MATCHED) System.exit(1);
+          minOcc = tokens.get(tokenPos).getMinOccurrences();
+          i = 0;
+          do {
+            currState.setState(currState.getState() == DIGIT_MATCHED ? DIGIT_MATCH_NEXT : currState.getState());
+            currState = CharacterClassMatcher.match(inputLine, currState, matchInReverseDirection);
+            i++;
+          } while (i < minOcc && currState.getState() == WORD_CLASS_MATCHED);
+          if (i < minOcc) System.exit(1);
           else {
             while (currState.getState() == WORD_CLASS_MATCHED) {
               currState.setState(WORD_CLASS_MATCH_NEXT);
@@ -120,8 +143,16 @@ public class Main {
           currState = currState.getState() != START_STATE ?
                   new StatePos(POS_GROUP_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(POS_GROUP_MATCH_ANYWHERE, 0);
-          currState = CharacterGroups.match(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
-          if (currState.getState() != POS_GROUP_MATCHED) System.exit(1);
+
+          minOcc = tokens.get(tokenPos).getMinOccurrences();
+          i = 0;
+          do {
+            currState.setState(currState.getState() == POS_GROUP_MATCHED ? POS_GROUP_MATCH_NEXT : currState.getState());
+            currState = CharacterGroups.match(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
+            i++;
+          } while (i < minOcc && currState.getState() == POS_GROUP_MATCHED);
+
+          if (i < minOcc) System.exit(1);
           else {
             while (currState.getState() == POS_GROUP_MATCHED) {
               currState.setState(POS_GROUP_MATCH_NEXT);
@@ -140,8 +171,15 @@ public class Main {
           currState = currState.getState() != START_STATE ?
                   new StatePos(NEG_GROUP_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(NEG_GROUP_MATCH_ANYWHERE, 0);
-          currState = CharacterGroups.negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
-          if (currState.getState() != NEG_GROUP_MATCHED) System.exit(1);
+          minOcc = tokens.get(tokenPos).getMinOccurrences();
+          i = 0;
+          do {
+            currState.setState(currState.getState() == NEG_GROUP_MATCHED ? NEG_GROUP_MATCH_NEXT : currState.getState());
+            currState = CharacterGroups.negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
+            i++;
+          } while (i < minOcc && currState.getState() == NEG_GROUP_MATCHED);
+
+          if (i < minOcc) System.exit(1);
           else {
             while (currState.getState() == NEG_GROUP_MATCHED) {
               currState.setState(NEG_GROUP_MATCH_NEXT);
@@ -182,7 +220,7 @@ public class Main {
 
   private static List<RegexToken> lexPattern(String pattern) {
     List<RegexToken> tokens = new ArrayList<>();
-    int tokenPos = 0;
+    int nextTokenPos = 0;
     for (int i = 0; i < pattern.length(); i++) {
       switch (pattern.charAt(i)) {
         case '\\':
@@ -226,50 +264,67 @@ public class Main {
           tokens.add(new RegexToken(ENDS_WITH));
           break;
         case '+':
-          switch (tokens.get(tokenPos - 1).getLexeme()) {
-            case DIGIT -> tokens.set(tokenPos - 1, new RegexToken(DIGIT_PLUS));
-            case LITERAL -> tokens.set(tokenPos - 1, new RegexToken(LITERAL_PLUS, tokens.get(tokenPos - 1).getValue()));
-            case WORD -> tokens.set(tokenPos - 1, new RegexToken(WORD_PLUS));
+          switch (tokens.get(nextTokenPos - 1).getLexeme()) {
+            case DIGIT -> tokens.set(nextTokenPos - 1, new RegexToken(DIGIT_PLUS));
+            case LITERAL -> tokens.set(nextTokenPos - 1, new RegexToken(LITERAL_PLUS, tokens.get(nextTokenPos - 1).getValue()));
+            case WORD -> tokens.set(nextTokenPos - 1, new RegexToken(WORD_PLUS));
             case POSITIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), POSITIVE_GROUP_PLUS));
+                    tokens.set(nextTokenPos - 1, new RegexToken(tokens.get(nextTokenPos - 1).getGroupPos(), POSITIVE_GROUP_PLUS));
             case NEGATIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), NEGATIVE_GROUP_PLUS));
+                    tokens.set(nextTokenPos - 1, new RegexToken(tokens.get(nextTokenPos - 1).getGroupPos(), NEGATIVE_GROUP_PLUS));
             default ->
-                    throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(tokenPos - 1).getLexeme() + " before +");
+                    throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(nextTokenPos - 1).getLexeme() + " before +");
           }
           break;
         case '*':
-          switch (tokens.get(tokenPos - 1).getLexeme()) {
-            case DIGIT -> tokens.set(tokenPos - 1, new RegexToken(DIGIT_STAR));
-            case LITERAL -> tokens.set(tokenPos - 1, new RegexToken(LITERAL_STAR, tokens.get(tokenPos - 1).getValue()));
-            case WORD -> tokens.set(tokenPos - 1, new RegexToken(WORD_STAR));
+          switch (tokens.get(nextTokenPos - 1).getLexeme()) {
+            case DIGIT -> tokens.set(nextTokenPos - 1, new RegexToken(DIGIT_STAR));
+            case LITERAL -> tokens.set(nextTokenPos - 1, new RegexToken(LITERAL_STAR, tokens.get(nextTokenPos - 1).getValue()));
+            case WORD -> tokens.set(nextTokenPos - 1, new RegexToken(WORD_STAR));
             case POSITIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), POSITIVE_GROUP_STAR));
+                    tokens.set(nextTokenPos - 1, new RegexToken(tokens.get(nextTokenPos - 1).getGroupPos(), POSITIVE_GROUP_STAR));
             case NEGATIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), NEGATIVE_GROUP_STAR));
+                    tokens.set(nextTokenPos - 1, new RegexToken(tokens.get(nextTokenPos - 1).getGroupPos(), NEGATIVE_GROUP_STAR));
             default ->
-                    throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(tokenPos - 1).getLexeme() + " before *");
+                    throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(nextTokenPos - 1).getLexeme() + " before *");
           }
           break;
         case '?':
-          switch (tokens.get(tokenPos - 1).getLexeme()) {
-            case DIGIT -> tokens.set(tokenPos - 1, new RegexToken(DIGIT_QUE));
-            case LITERAL -> tokens.set(tokenPos - 1, new RegexToken(LITERAL_QUE, tokens.get(tokenPos - 1).getValue()));
-            case WORD -> tokens.set(tokenPos - 1, new RegexToken(WORD_QUE));
+          switch (tokens.get(nextTokenPos - 1).getLexeme()) {
+            case DIGIT -> tokens.set(nextTokenPos - 1, new RegexToken(DIGIT_QUE));
+            case LITERAL -> tokens.set(nextTokenPos - 1, new RegexToken(LITERAL_QUE, tokens.get(nextTokenPos - 1).getValue()));
+            case WORD -> tokens.set(nextTokenPos - 1, new RegexToken(WORD_QUE));
             case POSITIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), POSITIVE_GROUP_QUE));
+                    tokens.set(nextTokenPos - 1, new RegexToken(tokens.get(nextTokenPos - 1).getGroupPos(), POSITIVE_GROUP_QUE));
             case NEGATIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), NEGATIVE_GROUP_QUE));
+                    tokens.set(nextTokenPos - 1, new RegexToken(tokens.get(nextTokenPos - 1).getGroupPos(), NEGATIVE_GROUP_QUE));
             default ->
-                    throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(tokenPos - 1).getLexeme() + " before ?");
+                    throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(nextTokenPos - 1).getLexeme() + " before ?");
           }
           break;
         default:
           // literal match
-          tokens.add(new RegexToken(LITERAL, pattern.charAt(i)));
+          if (nextTokenPos > 0) {
+            // Check if the previous token is LITERAL_PLUS | LITERAL_STAR | LITERAL_QUE and matches their LITERAL value to current value, and increment the minOccurrences if it is.
+            RegexToken regexToken = tokens.get(nextTokenPos - 1);
+            RegexLexeme lexeme = regexToken.getLexeme();
+            char currentLiteralValue = pattern.charAt(i);
+            if ((lexeme == LITERAL_PLUS || lexeme == LITERAL_STAR) && regexToken.getValue() == currentLiteralValue) {
+              regexToken.setMinOccurrences(regexToken.getMinOccurrences() + 1);
+              tokens.set(nextTokenPos - 1, regexToken);
+            } else if (lexeme == LITERAL_QUE && regexToken.getValue() == currentLiteralValue) {
+              regexToken.setMinOccurrences(regexToken.getMinOccurrences() + 1);
+              regexToken.setMaxOccurrences(regexToken.getMaxOccurrences() + 1);
+              tokens.set(nextTokenPos - 1, regexToken);
+            } else {
+              tokens.add(new RegexToken(LITERAL, pattern.charAt(i)));
+            }
+          } else {
+            tokens.add(new RegexToken(LITERAL, pattern.charAt(i)));
+          }
           break;
       }
-      tokenPos++;
+      nextTokenPos = tokens.size();
     }
 
     return tokens;
