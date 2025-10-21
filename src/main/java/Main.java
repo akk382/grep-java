@@ -26,14 +26,14 @@ public class Main {
                 currState = currState.getCurrInputPos() == 0 ?
                         new StatePos(States.LITERAL_MATCH_ANYWHERE, 0) :
                         new StatePos(States.LITERAL_MATCH_NEXT, currState.getCurrInputPos());
-                currState = LiteralMatcher.match(inputLine.substring(currState.getCurrInputPos()), token.getValue(), currState);
+                currState = LiteralMatcher.match(inputLine, token.getValue(), currState);
                 if (currState.getState() != States.LITERAL_MATCHED) System.exit(1);
                 break;
             case DIGIT:
                 currState = currState.getCurrInputPos() == 0 ?
                         new StatePos(States.DIGIT_MATCH_ANYWHERE, 0) :
                         new StatePos(States.DIGIT_MATCH_NEXT, currState.getCurrInputPos());
-                currState = DigitMatcher.match(inputLine.substring(currState.getCurrInputPos()), currState);
+                currState = DigitMatcher.match(inputLine, currState);
                 if (currState.getState() != States.DIGIT_MATCHED) System.exit(1);
                 break;
             case WORD:
@@ -64,13 +64,8 @@ public class Main {
                 throw new UnsupportedOperationException("Class " + token.getLexeme() + " not supported yet.");
         }
     }
+//      System.out.println("Match found");
     System.exit(0);
-
-//     if (matchPattern(inputLine, pattern)) {
-//         System.exit(0);
-//     } else {
-//         System.exit(1);
-//     }
   }
 
     private static List<RegexToken> lexPattern(String pattern) {
