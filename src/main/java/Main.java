@@ -33,7 +33,9 @@ public class Main {
         return DigitMatcher.match(inputLine);
     } else if (pattern.equals("\\w")) {
         return CharacterClassMatcher.match(inputLine);
-    } else if (pattern.startsWith("[")) {
+    } else if (pattern.startsWith("[^")) {
+        return !CharacterGroups.match(inputLine, pattern.substring(2));
+    }  else if (pattern.startsWith("[")) {
         return CharacterGroups.match(inputLine, pattern.substring(1));
     }
 
