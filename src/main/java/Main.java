@@ -23,46 +23,131 @@ public class Main {
 
     boolean matchInReverseDirection = tokens.getLast().getLexeme() == ENDS_WITH;
 
-    StatePos currState = new StatePos(matchInReverseDirection ? END_STATE : SART_STATE, matchInReverseDirection ? inputLine.length() - 1 : 0);
+    StatePos currState = new StatePos(matchInReverseDirection ? END_STATE : START_STATE, matchInReverseDirection ? inputLine.length() - 1 : 0);
 
     int tokenPos = !matchInReverseDirection ? 0 : tokens.size() - 1;
 
     while (tokenPos > -1 && tokenPos < tokens.size()) {
       switch (tokens.get(tokenPos).getLexeme()) {
         case LITERAL:
-          currState = currState.getState() != SART_STATE ?
+          currState = currState.getState() != START_STATE ?
                   new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(LITERAL_MATCH_ANYWHERE, 0);
           currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
           if (currState.getState() != LITERAL_MATCHED) System.exit(1);
           break;
+        case LITERAL_PLUS:
+          currState = currState.getState() != START_STATE ?
+                  new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
+                  new StatePos(LITERAL_MATCH_ANYWHERE, 0);
+          currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
+          if (currState.getState() != LITERAL_MATCHED) System.exit(1);
+          else {
+            while (currState.getState() == LITERAL_MATCHED) {
+              currState.setState(LITERAL_MATCH_NEXT);
+              currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
+            }
+          }
+          break;
+        case LITERAL_STAR:
+          currState = currState.getState() != START_STATE ?
+                  new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
+                  new StatePos(LITERAL_MATCH_ANYWHERE, 0);
+          do {
+            currState.setState(currState.getState() == LITERAL_MATCHED ? LITERAL_MATCH_NEXT : currState.getState());
+            currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
+          } while (currState.getState() == LITERAL_MATCHED);
+          break;
+        case LITERAL_QUE:
+          currState = currState.getState() != START_STATE ?
+                  new StatePos(LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
+                  new StatePos(LITERAL_MATCH_ANYWHERE, 0);
+          currState = LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection);
+          if (currState.getState() == LITERAL_MATCHED) {
+            currState.setState(LITERAL_MATCH_NEXT);
+            if (LiteralMatcher.match(inputLine, tokens.get(tokenPos).getValue(), currState, matchInReverseDirection).getState() == LITERAL_MATCHED)
+              System.exit(1);
+          }
+          break;
         case DIGIT:
-          currState = currState.getState() != SART_STATE ?
+          currState = currState.getState() != START_STATE ?
                   new StatePos(DIGIT_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(DIGIT_MATCH_ANYWHERE, 0);
           currState = DigitMatcher.match(inputLine, currState, matchInReverseDirection);
           if (currState.getState() != DIGIT_MATCHED) System.exit(1);
           break;
+        case DIGIT_PLUS:
+          currState = currState.getState() != START_STATE ?
+                  new StatePos(DIGIT_MATCH_NEXT, currState.getCurrInputPos()) :
+                  new StatePos(DIGIT_MATCH_ANYWHERE, 0);
+          currState = DigitMatcher.match(inputLine, currState, matchInReverseDirection);
+          if (currState.getState() != DIGIT_MATCHED) System.exit(1);
+          else {
+            while (currState.getState() == DIGIT_MATCHED) {
+              currState.setState(DIGIT_MATCH_NEXT);
+              currState = DigitMatcher.match(inputLine, currState, matchInReverseDirection);
+            }
+          }
+          break;
         case WORD:
-          currState = currState.getState() != SART_STATE ?
+          currState = currState.getState() != START_STATE ?
                   new StatePos(WORD_CLASS_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(WORD_CLASS_MATCH_ANYWHERE, 0);
           currState = CharacterClassMatcher.match(inputLine, currState, matchInReverseDirection);
           if (currState.getState() != WORD_CLASS_MATCHED) System.exit(1);
           break;
+        case WORD_PLUS:
+          currState = currState.getState() != START_STATE ?
+                  new StatePos(WORD_CLASS_MATCH_NEXT, currState.getCurrInputPos()) :
+                  new StatePos(WORD_CLASS_MATCH_ANYWHERE, 0);
+          currState = CharacterClassMatcher.match(inputLine, currState, matchInReverseDirection);
+          if (currState.getState() != WORD_CLASS_MATCHED) System.exit(1);
+          else {
+            while (currState.getState() == WORD_CLASS_MATCHED) {
+              currState.setState(WORD_CLASS_MATCH_NEXT);
+              currState = CharacterClassMatcher.match(inputLine, currState, matchInReverseDirection);
+            }
+          }
+          break;
         case POSITIVE_GROUP:
-          currState = currState.getState() != SART_STATE ?
+          currState = currState.getState() != START_STATE ?
                   new StatePos(POS_GROUP_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(POS_GROUP_MATCH_ANYWHERE, 0);
-          currState = CharacterGroups.match(inputLine, pattern.substring(tokens.get(tokenPos).getPos()), currState, matchInReverseDirection);
+          currState = CharacterGroups.match(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
           if (currState.getState() != POS_GROUP_MATCHED) System.exit(1);
           break;
+        case POSITIVE_GROUP_PLUS:
+          currState = currState.getState() != START_STATE ?
+                  new StatePos(POS_GROUP_MATCH_NEXT, currState.getCurrInputPos()) :
+                  new StatePos(POS_GROUP_MATCH_ANYWHERE, 0);
+          currState = CharacterGroups.match(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
+          if (currState.getState() != POS_GROUP_MATCHED) System.exit(1);
+          else {
+            while (currState.getState() == POS_GROUP_MATCHED) {
+              currState.setState(POS_GROUP_MATCH_NEXT);
+              currState = CharacterGroups.match(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
+            }
+          }
+          break;
         case NEGATIVE_GROUP:
-          currState = currState.getState() != SART_STATE ?
+          currState = currState.getState() != START_STATE ?
                   new StatePos(NEG_GROUP_MATCH_NEXT, currState.getCurrInputPos()) :
                   new StatePos(NEG_GROUP_MATCH_ANYWHERE, 0);
-          currState = CharacterGroups.negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getPos()), currState, matchInReverseDirection);
+          currState = CharacterGroups.negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
           if (currState.getState() != NEG_GROUP_MATCHED) System.exit(1);
+          break;
+        case NEGATIVE_GROUP_PLUS:
+          currState = currState.getState() != START_STATE ?
+                  new StatePos(NEG_GROUP_MATCH_NEXT, currState.getCurrInputPos()) :
+                  new StatePos(NEG_GROUP_MATCH_ANYWHERE, 0);
+          currState = CharacterGroups.negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
+          if (currState.getState() != NEG_GROUP_MATCHED) System.exit(1);
+          else {
+            while (currState.getState() == NEG_GROUP_MATCHED) {
+              currState.setState(NEG_GROUP_MATCH_NEXT);
+              currState = CharacterGroups.negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState, matchInReverseDirection);
+            }
+          }
           break;
         case STARTS_WITH:
           if (matchInReverseDirection) {
@@ -146,9 +231,9 @@ public class Main {
             case LITERAL -> tokens.set(tokenPos - 1, new RegexToken(LITERAL_PLUS, tokens.get(tokenPos - 1).getValue()));
             case WORD -> tokens.set(tokenPos - 1, new RegexToken(WORD_PLUS));
             case POSITIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getPos(), POSITIVE_GROUP_PLUS));
+                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), POSITIVE_GROUP_PLUS));
             case NEGATIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getPos(), NEGATIVE_GROUP_PLUS));
+                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), NEGATIVE_GROUP_PLUS));
             default ->
                     throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(tokenPos - 1).getLexeme() + " before +");
           }
@@ -159,9 +244,9 @@ public class Main {
             case LITERAL -> tokens.set(tokenPos - 1, new RegexToken(LITERAL_STAR, tokens.get(tokenPos - 1).getValue()));
             case WORD -> tokens.set(tokenPos - 1, new RegexToken(WORD_STAR));
             case POSITIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getPos(), POSITIVE_GROUP_STAR));
+                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), POSITIVE_GROUP_STAR));
             case NEGATIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getPos(), NEGATIVE_GROUP_STAR));
+                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), NEGATIVE_GROUP_STAR));
             default ->
                     throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(tokenPos - 1).getLexeme() + " before *");
           }
@@ -172,9 +257,9 @@ public class Main {
             case LITERAL -> tokens.set(tokenPos - 1, new RegexToken(LITERAL_QUE, tokens.get(tokenPos - 1).getValue()));
             case WORD -> tokens.set(tokenPos - 1, new RegexToken(WORD_QUE));
             case POSITIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getPos(), POSITIVE_GROUP_QUE));
+                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), POSITIVE_GROUP_QUE));
             case NEGATIVE_GROUP ->
-                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getPos(), NEGATIVE_GROUP_QUE));
+                    tokens.set(tokenPos - 1, new RegexToken(tokens.get(tokenPos - 1).getGroupPos(), NEGATIVE_GROUP_QUE));
             default ->
                     throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(tokenPos - 1).getLexeme() + " before ?");
           }

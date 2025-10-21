@@ -3,30 +3,30 @@ package machines;
 public class RegexToken {
   private RegexLexeme lexeme;
   private Character value;
-  private int pos;
+  private int groupPos;
 
   public RegexToken(RegexLexeme lexeme, Character value) {
     this.lexeme = lexeme;
     this.value = value;
-    this.pos = 0;
+    this.groupPos = 0;
   }
 
   public RegexToken(RegexLexeme lexeme) {
     this.lexeme = lexeme;
     this.value = null;
-    this.pos = 0;
+    this.groupPos = 0;
   }
 
-  public RegexToken(RegexLexeme lexeme, Character value, int pos) {
+  public RegexToken(RegexLexeme lexeme, Character value, int groupPos) {
     this.lexeme = lexeme;
     this.value = value;
-    this.pos = pos;
+    this.groupPos = groupPos;
   }
 
-  public RegexToken(int pos, RegexLexeme lexeme) {
+  public RegexToken(int groupPos, RegexLexeme lexeme) {
     this.lexeme = lexeme;
     this.value = null;
-    this.pos = pos;
+    this.groupPos = groupPos;
   }
 
   public RegexLexeme getLexeme() {
@@ -45,12 +45,12 @@ public class RegexToken {
     this.value = value;
   }
 
-  public int getPos() {
-    return pos;
+  public int getGroupPos() {
+    return groupPos;
   }
 
-  public void setPos(int pos) {
-    this.pos = pos;
+  public void setGroupPos(int pos) {
+    this.groupPos = pos;
   }
 
   @Override
@@ -58,7 +58,7 @@ public class RegexToken {
     return "RegexToken{" +
             "lexeme=" + lexeme +
             ", value=" + value +
-            ", pos=" + pos +
+            ", groupPos=" + groupPos +
             '}';
   }
 }

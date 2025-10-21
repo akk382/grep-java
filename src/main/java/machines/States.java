@@ -2,7 +2,7 @@ package machines;
 
 // TODO: all \w+_NOT_MATCHED states can be collapsed to single NOT_MATCHED state.
 public enum States {
-  SART_STATE, // Just some random state
+  START_STATE, // Just some random state
   WORD_CLASS_MATCH_NEXT,
   WORD_CLASS_MATCH_ANYWHERE,
   WORD_CLASS_MATCHED,
