@@ -3,6 +3,9 @@ package machines;
 public class DigitMatcher {
     public static StatePos match(String input, StatePos currentStatePos) {
         if (currentStatePos == null) currentStatePos = new StatePos(States.DIGIT_MATCH_ANYWHERE, 0);
+        if (currentStatePos.getCurrInputPos() >= input.length()) {
+            return new StatePos(States.DIGIT_NOT_MATCHED, currentStatePos.getCurrInputPos());
+        }
         return switch (currentStatePos.getState()) {
             case DIGIT_MATCH_NEXT -> Character.isDigit(input.charAt(currentStatePos.getCurrInputPos())) ?
                     new StatePos(States.DIGIT_MATCHED, currentStatePos.getCurrInputPos() + 1) :

@@ -24,41 +24,53 @@ public class Main {
     for (RegexToken token : tokens) {
         switch (token.getLexeme()) {
             case LITERAL:
-                currState = shouldStartWith ?
+
+                currState = currState.getState() != States.SART_STATE ?
                         new StatePos(States.LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
                         new StatePos(States.LITERAL_MATCH_ANYWHERE, 0);
                 currState = LiteralMatcher.match(inputLine, token.getValue(), currState);
                 if (currState.getState() != States.LITERAL_MATCHED) System.exit(1);
                 break;
             case DIGIT:
-                currState = shouldStartWith ?
+                currState = currState.getState() != States.SART_STATE ?
                         new StatePos(States.DIGIT_MATCH_NEXT, currState.getCurrInputPos()) :
                         new StatePos(States.DIGIT_MATCH_ANYWHERE, 0);
                 currState = DigitMatcher.match(inputLine, currState);
                 if (currState.getState() != States.DIGIT_MATCHED) System.exit(1);
                 break;
             case WORD:
-                currState = shouldStartWith ?
+                currState = currState.getState() != States.SART_STATE ?
                         new StatePos(States.WORD_CLASS_MATCH_NEXT, currState.getCurrInputPos()) :
                         new StatePos(States.WORD_CLASS_MATCH_ANYWHERE, 0);
                 currState = CharacterClassMatcher.match(inputLine, currState);
                 if (currState.getState() != States.WORD_CLASS_MATCHED) System.exit(1);
                 break;
             case POSITIVE_GROUP:
-                currState = shouldStartWith ?
+                currState = currState.getState() != States.SART_STATE ?
                         new StatePos(States.POS_GROUP_MATCH_NEXT, currState.getCurrInputPos()) :
                         new StatePos(States.POS_GROUP_MATCH_ANYWHERE, 0);
                 currState = CharacterGroups.match(inputLine, pattern.substring(token.getPos()), currState);
                 if (currState.getState() != States.POS_GROUP_MATCHED) System.exit(1);
                 break;
             case NEGATIVE_GROUP:
-                currState = shouldStartWith ?
+                currState = currState.getState() != States.SART_STATE ?
                         new StatePos(States.NEG_GROUP_MATCH_NEXT, currState.getCurrInputPos()) :
                         new StatePos(States.NEG_GROUP_MATCH_ANYWHERE, 0);
                 currState = CharacterGroups.negativeMatch(inputLine, pattern.substring(token.getPos()), currState);
                 if (currState.getState() != States.NEG_GROUP_MATCHED) System.exit(1);
                 break;
-            case STARTS_WITH: shouldStartWith = true; break;
+            case STARTS_WITH:
+                if (tokens.size() > 1) {
+                    switch (tokens.get(1).getLexeme()) {
+                        case LITERAL -> currState.setState(States.LITERAL_MATCH_NEXT);
+                        case DIGIT -> currState.setState(States.DIGIT_MATCH_NEXT);
+                        case WORD -> currState.setState(States.WORD_CLASS_MATCH_NEXT);
+                        case POSITIVE_GROUP -> currState.setState(States.POS_GROUP_MATCH_NEXT);
+                        case NEGATIVE_GROUP -> currState.setState(States.NEG_GROUP_MATCH_NEXT);
+                        default -> throw new UnsupportedOperationException("Class " + token.getLexeme() + " not supported yet.");
+                    }
+                }
+                break;
             case NON_WORD:
             case NON_DIGIT:
             case BACK_SLASH:

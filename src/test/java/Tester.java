@@ -9,7 +9,8 @@ public class Tester {
 //        test(new String[]{"-E", "\\d apple"}, "sally has 3 apple");
 //        test(new String[]{"-E", "\\d apple"}, "sally has 1 orange");
 //        test(new String[]{"-E", "[^xyz]"}, "apple");
-        test(new String[]{"-E", "[^abc]"}, "apple");
+//        test(new String[]{"-E", "[^abc]"}, "apple");
+        test(new String[]{"-E", "\\d \\w\\w\\ws"}, "sally has 1 dog");
 
         System.setIn(originalSystemIn);
     }

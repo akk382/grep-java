@@ -8,6 +8,9 @@ import java.util.Map;
 public class CharacterGroups {
     public static StatePos match(String input, String patternFromNextToBrace, StatePos currStatePos) {
         if (currStatePos == null) currStatePos = new StatePos(States.POS_GROUP_MATCH_ANYWHERE, 0);
+        if (currStatePos.getCurrInputPos() >= input.length()) {
+            return new StatePos(States.POS_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
+        }
         Map<CaptureGroupType, List<Character>> captureGroups = extractCaptureGroup(patternFromNextToBrace);
 
         return switch (currStatePos.getState()) {
@@ -43,6 +46,9 @@ public class CharacterGroups {
 
     public static StatePos negativeMatch(String input, String patternFromNextToBrace, StatePos currStatePos) {
         if (currStatePos == null) currStatePos = new StatePos(States.NEG_GROUP_MATCH_ANYWHERE, 0);
+        if (currStatePos.getCurrInputPos() >= input.length()) {
+            return new StatePos(States.NEG_GROUP_NOT_MATCHED, currStatePos.getCurrInputPos());
+        }
         Map<CaptureGroupType, List<Character>> captureGroups = extractCaptureGroup(patternFromNextToBrace);
 
         return switch (currStatePos.getState()) {
