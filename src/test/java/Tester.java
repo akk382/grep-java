@@ -2,8 +2,8 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 public class Tester {
-    public static void main(String[] args) {
-        InputStream originalSystemIn = System.in;
+  public static void main(String[] args) {
+    InputStream originalSystemIn = System.in;
 
 //        test(new String[]{"-E", "\\d\\d\\d apples"}, "sally has 124 apples");
 //        test(new String[]{"-E", "\\d apple"}, "sally has 3 apple");
@@ -13,14 +13,14 @@ public class Tester {
 //        test(new String[]{"-E", "\\d \\w\\w\\ws"}, "sally has 1 dog");
 //        test(new String[]{"-E", "apple$"}, "mango_apple");
 //        test(new String[]{"-E", "^banana$"}, "banana_banana");
-        test(new String[]{"-E", "^banana$"}, "banana");
+    test(new String[]{"-E", "^banana$"}, "banana");
 
-        System.setIn(originalSystemIn);
-    }
+    System.setIn(originalSystemIn);
+  }
 
-    private static void test(String[] args, String input) {
-        ByteArrayInputStream bais = new ByteArrayInputStream(input.getBytes());
-        System.setIn(bais);
-        Main.main(args);
-    }
+  private static void test(String[] args, String input) {
+    ByteArrayInputStream bais = new ByteArrayInputStream(input.getBytes());
+    System.setIn(bais);
+    Main.main(args);
+  }
 }

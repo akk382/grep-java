@@ -1,52 +1,64 @@
 package machines;
 
 public class RegexToken {
-    private RegexLexeme lexeme;
-    private Character value;
-    private int pos;
+  private RegexLexeme lexeme;
+  private Character value;
+  private int pos;
 
-    public RegexToken(RegexLexeme lexeme, Character value) {
-        this.lexeme = lexeme;
-        this.value = value;
-        this.pos = 0;
-    }
+  public RegexToken(RegexLexeme lexeme, Character value) {
+    this.lexeme = lexeme;
+    this.value = value;
+    this.pos = 0;
+  }
 
-    public RegexToken(RegexLexeme lexeme, Character value, int pos) {
-        this.lexeme = lexeme;
-        this.value = value;
-        this.pos = pos;
-    }
+  public RegexToken(RegexLexeme lexeme) {
+    this.lexeme = lexeme;
+    this.value = null;
+    this.pos = 0;
+  }
 
-    public RegexLexeme getLexeme() {
-        return lexeme;
-    }
+  public RegexToken(RegexLexeme lexeme, Character value, int pos) {
+    this.lexeme = lexeme;
+    this.value = value;
+    this.pos = pos;
+  }
 
-    public void setLexeme(RegexLexeme lexeme) {
-        this.lexeme = lexeme;
-    }
+  public RegexToken(int pos, RegexLexeme lexeme) {
+    this.lexeme = lexeme;
+    this.value = null;
+    this.pos = pos;
+  }
 
-    public char getValue() {
-        return value;
-    }
+  public RegexLexeme getLexeme() {
+    return lexeme;
+  }
 
-    public void setValue(Character value) {
-        this.value = value;
-    }
+  public void setLexeme(RegexLexeme lexeme) {
+    this.lexeme = lexeme;
+  }
 
-    public int getPos() {
-        return pos;
-    }
+  public char getValue() {
+    return value;
+  }
 
-    public void setPos(int pos) {
-        this.pos = pos;
-    }
+  public void setValue(Character value) {
+    this.value = value;
+  }
 
-    @Override
-    public String toString() {
-        return "RegexToken{" +
-                "lexeme=" + lexeme +
-                ", value=" + value +
-                ", pos=" + pos +
-                '}';
-    }
+  public int getPos() {
+    return pos;
+  }
+
+  public void setPos(int pos) {
+    this.pos = pos;
+  }
+
+  @Override
+  public String toString() {
+    return "RegexToken{" +
+            "lexeme=" + lexeme +
+            ", value=" + value +
+            ", pos=" + pos +
+            '}';
+  }
 }

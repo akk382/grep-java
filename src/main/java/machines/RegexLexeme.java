@@ -1,14 +1,38 @@
 package machines;
 
 public enum RegexLexeme {
-    STARTS_WITH,
-    LITERAL,
-    DIGIT,
-    NON_DIGIT,
-    WORD,
-    NON_WORD,
-    POSITIVE_GROUP,
-    NEGATIVE_GROUP,
-    BACK_SLASH,
-    ENDS_WITH,
+  STARTS_WITH,
+
+  LITERAL,
+  LITERAL_PLUS, // +: one or more
+  LITERAL_STAR, // *: zero or more
+  LITERAL_QUE, // ?: one or none
+
+  DIGIT,
+  DIGIT_PLUS,
+  DIGIT_STAR,
+  DIGIT_QUE,
+
+  NON_DIGIT,
+
+  WORD,
+  WORD_PLUS,
+  WORD_STAR,
+  WORD_QUE,
+
+  NON_WORD,
+
+  POSITIVE_GROUP,
+  POSITIVE_GROUP_PLUS,
+  POSITIVE_GROUP_STAR,
+  POSITIVE_GROUP_QUE,
+
+  NEGATIVE_GROUP,
+  NEGATIVE_GROUP_PLUS,
+  NEGATIVE_GROUP_STAR,
+  NEGATIVE_GROUP_QUE,
+
+  BACK_SLASH,
+
+  ENDS_WITH,
 }
