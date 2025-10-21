@@ -10,4 +10,5 @@ public enum RegexLexeme {
     POSITIVE_GROUP,
     NEGATIVE_GROUP,
     BACK_SLASH,
+    ENDS_WITH,
 }

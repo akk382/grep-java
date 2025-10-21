@@ -19,12 +19,10 @@ public class Main {
     List<RegexToken> tokens = lexPattern(pattern);
 
     StatePos currState = new StatePos(States.SART_STATE, 0);
-    boolean shouldStartWith = false;
 
     for (RegexToken token : tokens) {
         switch (token.getLexeme()) {
             case LITERAL:
-
                 currState = currState.getState() != States.SART_STATE ?
                         new StatePos(States.LITERAL_MATCH_NEXT, currState.getCurrInputPos()) :
                         new StatePos(States.LITERAL_MATCH_ANYWHERE, 0);
@@ -71,6 +69,9 @@ public class Main {
                     }
                 }
                 break;
+            case ENDS_WITH:
+                if (currState.getCurrInputPos() != inputLine.length() + 1) System.exit(1);
+                break;
             case NON_WORD:
             case NON_DIGIT:
             case BACK_SLASH:
@@ -110,6 +111,8 @@ public class Main {
                   break;
               case '^':
                   tokens.add(new RegexToken(RegexLexeme.STARTS_WITH, null)); break;
+              case '$':
+                  tokens.add(new RegexToken(RegexLexeme.ENDS_WITH, null)); break;
               default:
                   // literal match
                   tokens.add(new RegexToken(RegexLexeme.LITERAL, pattern.charAt(i)));
