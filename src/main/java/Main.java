@@ -65,7 +65,10 @@ public class Main {
                 if (currState.getState() != NEG_GROUP_MATCHED) System.exit(1);
                 break;
             case STARTS_WITH:
-                if (tokens.size() > 1) {
+                if (matchInReverseDirection) {
+                    if (currState.getCurrInputPos() != -1)
+                        System.exit(1);
+                } else if (tokens.size() > 1) {
                     switch (tokens.get(1).getLexeme()) {
                         case LITERAL -> currState.setState(LITERAL_MATCH_NEXT);
                         case DIGIT -> currState.setState(DIGIT_MATCH_NEXT);
