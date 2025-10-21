@@ -92,6 +92,8 @@ public class Main {
                       default: tokens.add(new RegexToken(RegexLexeme.POSITIVE_GROUP, null, i + 1)); break;
                   }
                   i++;
+                  while (pattern.charAt(i) != ']') i++;
+                  i++;
                   break;
               default:
                   // literal match
