@@ -375,15 +375,23 @@ public class Main {
           break;
         case '?':
           switch (tokens.get(nextTokenPos - 1).getLexeme()) {
-            case DIGIT -> tokens.set(nextTokenPos - 1, new RegexToken(DIGIT_QUE));
-            case LITERAL -> tokens.set(nextTokenPos - 1, new RegexToken(LITERAL_QUE, tokens.get(nextTokenPos - 1).getValue()));
-            case WORD -> tokens.set(nextTokenPos - 1, new RegexToken(WORD_QUE));
-            case POSITIVE_GROUP ->
+            case DIGIT: tokens.set(nextTokenPos - 1, new RegexToken(DIGIT_QUE)); break;
+            case LITERAL: tokens.set(nextTokenPos - 1, new RegexToken(LITERAL_QUE, tokens.get(nextTokenPos - 1).getValue())); break;
+            case WORD: tokens.set(nextTokenPos - 1, new RegexToken(WORD_QUE)); break;
+            case POSITIVE_GROUP:
                     tokens.set(nextTokenPos - 1, new RegexToken(tokens.get(nextTokenPos - 1).getGroupPos(), POSITIVE_GROUP_QUE));
-            case NEGATIVE_GROUP ->
+                    break;
+            case NEGATIVE_GROUP:
                     tokens.set(nextTokenPos - 1, new RegexToken(tokens.get(nextTokenPos - 1).getGroupPos(), NEGATIVE_GROUP_QUE));
-            default ->
-                    throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(nextTokenPos - 1).getLexeme() + " before ?");
+                    break;
+            case DIGIT_QUE:
+            case LITERAL_QUE:
+            case WORD_QUE:
+            case POSITIVE_GROUP_QUE:
+            case NEGATIVE_GROUP_QUE:
+              break;
+            default:
+              throw new UnsupportedOperationException("Encountered unsupported token " + tokens.get(nextTokenPos - 1).getLexeme() + " before ?");
           }
           break;
         default:

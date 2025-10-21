@@ -16,6 +16,7 @@ public class Tester {
 //    test(new String[]{"-E", "^banana$"}, "banana");
 //    test(new String[]{"-E", "ca+at"}, "caaats");
 //    test(new String[]{"-E", "ca+t"}, "act");
+    test(new String[]{"-E", "ca?a?t"}, "cat");
 
     System.setIn(originalSystemIn);
   }
