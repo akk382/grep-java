@@ -393,7 +393,8 @@ public enum RegexLexeme {
     }
   };
 
-  public abstract StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos);
+  public abstract StatePos match(StatePos currState, String inputLine, String pattern,
+                                 List<RegexToken> tokens, int tokenPos);
 
   public StatePos negativeMatch(String input, String patternFromNextToBrace, StatePos currStatePos) {
     if (!List.of(NEG_GROUP_MATCHED, NEG_GROUP_MATCH_NEXT, NEG_GROUP_MATCH_ANYWHERE, NEG_GROUP_NOT_MATCHED)
@@ -493,7 +494,7 @@ public enum RegexLexeme {
   public StatePos characterMatcher(String input, StatePos currentStatePos) {
     if (!List.of(WORD_CLASS_MATCH_ANYWHERE, WORD_CLASS_MATCH_NEXT, WORD_CLASS_MATCHED, WORD_CLASS_NOT_MATCHED)
             .contains(currentStatePos.getState())) {
-      throw new UnsupportedOperationException("This method only supports LITERAL matcher.");
+      throw new UnsupportedOperationException("This method only supports WORD class matcher.");
     }
     if (currentStatePos.getCurrInputPos() >= input.length()) {
       currentStatePos.setState(States.WORD_CLASS_NOT_MATCHED);
@@ -570,6 +571,10 @@ public enum RegexLexeme {
   }
 
   public StatePos literalMatcher(String input, char pattern, StatePos currentStatePos) {
+    if (!List.of(LITERAL_MATCHED, LITERAL_NOT_MATCHED, LITERAL_MATCH_ANYWHERE, LITERAL_MATCH_NEXT)
+            .contains(currentStatePos.getState())) {
+      throw new UnsupportedOperationException("This method only supports LITERAL matcher.");
+    }
     if (currentStatePos.getCurrInputPos() >= input.length()) {
       return new StatePos(States.LITERAL_NOT_MATCHED, currentStatePos.getCurrInputPos());
     }
