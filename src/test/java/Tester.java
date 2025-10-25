@@ -17,7 +17,8 @@ public class Tester {
 //    test(new String[]{"-E", "ca+at"}, "caaats");
 //    test(new String[]{"-E", "ca+t"}, "act");
 //    test(new String[]{"-E", "ca?a?t"}, "cat");
-    test(new String[]{"-E", "cat"}, "cajsfcat");
+//    test(new String[]{"-E", "cat"}, "cajsfcat");
+    test(new String[]{"-E", "g.+gol"}, "goøö0Ogol");
 
     System.setIn(originalSystemIn);
   }

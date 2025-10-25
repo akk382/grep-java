@@ -31,6 +31,10 @@ public class Main {
     while (tokenPos > -1 && tokenPos < tokens.size()) {
       currState = tokens.get(tokenPos).getLexeme()
               .match(currState, inputLine, pattern, tokens, tokenPos);
+
+      // TODO: If the input is consumes completely, then have we found the match already ??
+      if (currState.getCurrInputPos() >= inputLine.length())
+        break;
       tokenPos = currState.isMatchInReverseDirection() ? tokenPos - 1 : tokenPos + 1;
     }
     if (currState.isMatchWildCardAtTheEnd() && !tokens.getFirst().getLexeme().matchWildCardAtTheEnd(currState, inputLine))
