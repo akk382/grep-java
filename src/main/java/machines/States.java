@@ -1,8 +1,9 @@
 package machines;
 
-// TODO: all \w+_NOT_MATCHED states can be collapsed to single NOT_MATCHED state.
+// TODO: all XXXX_NOT_MATCHED states can be collapsed to single NOT_MATCHED state.
 public enum States {
   START_STATE, // Just some random state
+
   WORD_CLASS_MATCH_NEXT,
   WORD_CLASS_MATCH_ANYWHERE,
   WORD_CLASS_MATCHED,
@@ -27,6 +28,11 @@ public enum States {
   NEG_GROUP_MATCH_ANYWHERE,
   NEG_GROUP_NOT_MATCHED,
   NEG_GROUP_MATCHED,
+
+  WILDCARD_MATCH_NEXT,
+  WILDCARD_MATCH_ANYWHERE, // Is it needed?
+  WILDCARD_NOT_MATCHED, // in case of new line \n
+  WILDCARD_MATCHED,
 
   END_STATE,
 }

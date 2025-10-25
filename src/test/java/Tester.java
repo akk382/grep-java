@@ -5,18 +5,19 @@ public class Tester {
   public static void main(String[] args) {
     InputStream originalSystemIn = System.in;
 
-//        test(new String[]{"-E", "\\d\\d\\d apples"}, "sally has 124 apples");
-//        test(new String[]{"-E", "\\d apple"}, "sally has 3 apple");
-//        test(new String[]{"-E", "\\d apple"}, "sally has 1 orange");
-//        test(new String[]{"-E", "[^xyz]"}, "apple");
-//        test(new String[]{"-E", "[^abc]"}, "apple");
-//        test(new String[]{"-E", "\\d \\w\\w\\ws"}, "sally has 1 dog");
-//        test(new String[]{"-E", "apple$"}, "mango_apple");
-//        test(new String[]{"-E", "^banana$"}, "banana_banana");
+//    test(new String[]{"-E", "\\d\\d\\d apples"}, "sally has 124 apples");
+//    test(new String[]{"-E", "\\d apple"}, "sally has 3 apple");
+//    test(new String[]{"-E", "\\d apple"}, "sally has 1 orange");
+//    test(new String[]{"-E", "[^xyz]"}, "apple");
+//    test(new String[]{"-E", "[^abc]"}, "apple");
+//    test(new String[]{"-E", "\\d \\w\\w\\ws"}, "sally has 1 dog");
+//    test(new String[]{"-E", "apple$"}, "mango_apple");
+//    test(new String[]{"-E", "^banana$"}, "banana_banana");
 //    test(new String[]{"-E", "^banana$"}, "banana");
 //    test(new String[]{"-E", "ca+at"}, "caaats");
 //    test(new String[]{"-E", "ca+t"}, "act");
-    test(new String[]{"-E", "ca?a?t"}, "cat");
+//    test(new String[]{"-E", "ca?a?t"}, "cat");
+    test(new String[]{"-E", "cat"}, "cajsfcat");
 
     System.setIn(originalSystemIn);
   }
