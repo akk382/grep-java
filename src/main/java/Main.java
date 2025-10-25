@@ -33,8 +33,7 @@ public class Main {
               .match(currState, inputLine, pattern, tokens, tokenPos);
       tokenPos = currState.isMatchInReverseDirection() ? tokenPos - 1 : tokenPos + 1;
     }
-    if (currState.isMatchWildCardAtTheEnd() && currState.getMatchStartPos() > 0
-            && inputLine.charAt(currState.getMatchStartPos() - 1) == '\n')
+    if (currState.isMatchWildCardAtTheEnd() && !tokens.getFirst().getLexeme().matchWildCardAtTheEnd(currState, inputLine))
       System.exit(1);
     System.out.println("Matched");
     System.exit(0);

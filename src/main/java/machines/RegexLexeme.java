@@ -358,19 +358,40 @@ public enum RegexLexeme {
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
       if (currState.getState() == START_STATE) {
         currState.setMatchWildCardAtTheEnd(true);
-      } else if (inputLine.charAt(currState.getCurrInputPos()) != '\n') {
-        currState.setState(WILDCARD_MATCHED);
-        currState.setCurrInputPos(currState.getCurrInputPos() + 1);
+      } else if (inputLine.charAt(currState.getCurrInputPos()) == '\n') {
+        currState.setState(WILDCARD_NOT_MATCHED);
       } else {
         currState.setState(WILDCARD_MATCHED);
+        currState.setCurrInputPos(currState.getCurrInputPos() + 1);
       }
       return currState;
+    }
+
+    @Override
+    public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
+      return currState.getMatchStartPos() > 0 && inputLine.charAt(currState.getMatchStartPos() - 1) != '\n';
     }
   }, // '.' -> matches any character except new line.
   WILD_CARD_PLUS {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      throw new UnsupportedOperationException("Not Implemented Yet.");
+      if (currState.getState() == START_STATE) {
+        currState.setMatchWildCardAtTheEnd(true);
+      } else if (inputLine.charAt(currState.getCurrInputPos()) == '\n') {
+        currState.setState(WILDCARD_NOT_MATCHED);
+      } else {
+        // consume all the non-new line characters.
+        while (currState.getCurrInputPos() <= inputLine.length() && inputLine.charAt(currState.getCurrInputPos()) != '\n') {
+          currState.setState(WILDCARD_MATCHED);
+          currState.setCurrInputPos(currState.getCurrInputPos() + 1);
+        }
+      }
+      return currState;
+    }
+
+    @Override
+    public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
+      return currState.getMatchStartPos() > 0 && inputLine.charAt(currState.getMatchStartPos() - 1) != '\n';
     }
   },
   WILD_CARD_STAR {
@@ -378,11 +399,29 @@ public enum RegexLexeme {
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
       throw new UnsupportedOperationException("Not Implemented Yet.");
     }
+
+    @Override
+    public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
+      return true;
+    }
   },
   WILD_CARD_QUE {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      throw new UnsupportedOperationException("Not Implemented Yet.");
+      if (currState.getState() == START_STATE) {
+        currState.setMatchWildCardAtTheEnd(true);
+      } else if (inputLine.charAt(currState.getCurrInputPos()) != '\n') {
+          currState.setState(WILDCARD_MATCHED);
+          currState.setCurrInputPos(currState.getCurrInputPos() + 1);
+      } else {
+        currState.setState(WILDCARD_MATCHED);
+      }
+      return currState;
+    }
+
+    @Override
+    public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
+      return true;
     }
   },
 
@@ -606,5 +645,9 @@ public enum RegexLexeme {
         yield currentStatePos;
       }
     };
+  }
+
+  public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
+    throw new UnsupportedOperationException("Not supported method.");
   }
 }
