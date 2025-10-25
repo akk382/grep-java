@@ -381,7 +381,7 @@ public enum RegexLexeme {
         currState.setState(WILDCARD_NOT_MATCHED);
       } else {
         // consume all the non-new line characters.
-        while (currState.getCurrInputPos() <= inputLine.length() && inputLine.charAt(currState.getCurrInputPos()) != '\n') {
+        while (currState.getCurrInputPos() < inputLine.length() && inputLine.charAt(currState.getCurrInputPos()) != '\n') {
           currState.setState(WILDCARD_MATCHED);
           currState.setCurrInputPos(currState.getCurrInputPos() + 1);
         }
