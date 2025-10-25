@@ -359,7 +359,8 @@ public enum RegexLexeme {
       if (currState.getState() == START_STATE) {
         currState.setMatchWildCardAtTheEnd(true);
       } else if (inputLine.charAt(currState.getCurrInputPos()) == '\n') {
-        currState.setState(WILDCARD_NOT_MATCHED);
+//        currState.setState(WILDCARD_NOT_MATCHED);
+        System.exit(1);
       } else {
         currState.setState(WILDCARD_MATCHED);
         currState.setCurrInputPos(currState.getCurrInputPos() + 1);
@@ -369,7 +370,13 @@ public enum RegexLexeme {
 
     @Override
     public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
-      return currState.getMatchStartPos() > 0 && inputLine.charAt(currState.getMatchStartPos() - 1) != '\n';
+      for (int i = 0; i < currState.getMatchWildStart().size(); i++) {
+        for (int j = currState.getMatchWildStart().get(i); j <= currState.getMatchWildEnds().get(i); j++) {
+          if (inputLine.charAt(i) == '\n')
+            return false;
+        }
+      }
+      return true;
     }
   }, // '.' -> matches any character except new line.
   WILD_CARD_PLUS {
@@ -379,23 +386,49 @@ public enum RegexLexeme {
         currState.setMatchWildCardAtTheEnd(true);
       } else if (inputLine.charAt(currState.getCurrInputPos()) == '\n') {
         currState.setState(WILDCARD_NOT_MATCHED);
+        System.exit(1);
       } else {
-        // consume all the non-new line characters.
-        while (currState.getCurrInputPos() < inputLine.length() && inputLine.charAt(currState.getCurrInputPos()) != '\n') {
-          currState.setState(WILDCARD_MATCHED);
-          currState.setCurrInputPos(currState.getCurrInputPos() + 1);
-        }
+        // match the rest of the pattern in the rest of the string.
+        // Then try to match from the above set position until the start of the rest of the pattern.
+        // If there is any new line in between, then not matched.
+        // Else matched.
+        currState.setMatchWildCardAtTheEnd(true);
+        currState.getMatchWildStart().add(currState.getCurrInputPos());
+        currState.setCurrInputPos(currState.getCurrInputPos() + 1);
+        currState.setState(getNextState(tokens, tokenPos));
       }
       return currState;
     }
 
+    private States getNextState(List<RegexToken> tokens, int tokenPos) {
+      if (tokenPos + 1 < tokens.size()) {
+        return switch (tokens.get(tokenPos + 1).getLexeme()) {
+          case DIGIT, DIGIT_PLUS, DIGIT_STAR, DIGIT_QUE -> DIGIT_MATCH_ANYWHERE;
+          case LITERAL, LITERAL_PLUS, LITERAL_STAR, LITERAL_QUE -> LITERAL_MATCH_ANYWHERE;
+          case WORD, WORD_PLUS, WORD_STAR, WORD_QUE -> WORD_CLASS_MATCH_ANYWHERE;
+          case WILD_CARD, WILD_CARD_PLUS, WILD_CARD_STAR, WILD_CARD_QUE -> WILDCARD_MATCH_ANYWHERE;
+          case POSITIVE_GROUP, POSITIVE_GROUP_PLUS, POSITIVE_GROUP_STAR, POSITIVE_GROUP_QUE -> POS_GROUP_MATCH_ANYWHERE;
+          case NEGATIVE_GROUP, NEGATIVE_GROUP_PLUS, NEGATIVE_GROUP_STAR, NEGATIVE_GROUP_QUE -> NEG_GROUP_MATCHED;
+          default -> NULL_STATE;
+        };
+      }
+      return null;
+    }
+
     @Override
     public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
-      return currState.getMatchStartPos() > 0 && inputLine.charAt(currState.getMatchStartPos() - 1) != '\n';
+      for (int i = 0; i < currState.getMatchWildStart().size(); i++) {
+        for (int j = currState.getMatchWildStart().get(i); j <= currState.getMatchWildEnds().get(i); j++) {
+          if (inputLine.charAt(i) == '\n')
+            return false;
+        }
+      }
+      return true;
     }
   },
   WILD_CARD_STAR {
     @Override
+
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
       throw new UnsupportedOperationException("Not Implemented Yet.");
     }
@@ -452,6 +485,9 @@ public enum RegexLexeme {
           if (!captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(i))) {
             currStatePos.setState(States.NEG_GROUP_MATCHED);
             currStatePos.setCurrInputPos(i + 1);
+            if (currStatePos.getMatchWildEnds().size() < currStatePos.getMatchWildStart().size()) {
+              currStatePos.getMatchWildEnds().add(i);
+            }
             yield currStatePos;
           }
         }
@@ -493,6 +529,9 @@ public enum RegexLexeme {
           if (captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(i))) {
             currStatePos.setState(States.POS_GROUP_MATCHED);
             currStatePos.setCurrInputPos(i + 1);
+            if (currStatePos.getMatchWildEnds().size() < currStatePos.getMatchWildStart().size()) {
+              currStatePos.getMatchWildEnds().add(i);
+            }
             yield currStatePos;
           }
         }
@@ -556,6 +595,9 @@ public enum RegexLexeme {
           if (Character.isLetterOrDigit(input.charAt(i)) || '_' == input.charAt(i)) {
             currentStatePos.setState(States.WORD_CLASS_MATCHED);
             currentStatePos.setCurrInputPos(i + 1);
+            if (currentStatePos.getMatchWildEnds().size() < currentStatePos.getMatchWildStart().size()) {
+              currentStatePos.getMatchWildEnds().add(i);
+            }
             yield currentStatePos;
           }
         }
@@ -596,6 +638,9 @@ public enum RegexLexeme {
           if (Character.isDigit(input.charAt(i))) {
             currentStatePos.setState(States.DIGIT_MATCHED);
             currentStatePos.setCurrInputPos(i + 1);
+            if (currentStatePos.getMatchWildEnds().size() < currentStatePos.getMatchWildStart().size()) {
+              currentStatePos.getMatchWildEnds().add(i);
+            }
             yield currentStatePos;
           }
         }
@@ -630,10 +675,13 @@ public enum RegexLexeme {
         yield currentStatePos;
       }
       case LITERAL_MATCH_ANYWHERE: {
-        for (int i = 0; i < input.length(); i++) {
+        for (int i = currentStatePos.getCurrInputPos(); i < input.length(); i++) {
           if (input.charAt(i) == pattern) {
             currentStatePos.setState(States.LITERAL_MATCHED);
             currentStatePos.setCurrInputPos(i + 1);
+            if (currentStatePos.getMatchWildEnds().size() < currentStatePos.getMatchWildStart().size()) {
+              currentStatePos.getMatchWildEnds().add(i);
+            }
             yield currentStatePos;
           }
         }

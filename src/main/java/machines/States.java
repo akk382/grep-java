@@ -35,4 +35,6 @@ public enum States {
   WILDCARD_MATCHED,
 
   END_STATE,
+
+  NULL_STATE,
 }
