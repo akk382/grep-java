@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import static machines.States.*;
-import static machines.States.LITERAL_MATCHED;
 
 public enum RegexLexeme {
   STARTS_WITH {
@@ -603,5 +602,4 @@ public enum RegexLexeme {
       }
     };
   }
-
 }
