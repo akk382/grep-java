@@ -28,7 +28,7 @@ public class Main {
 
     StatePos currStatePos = RegexMatcher.match(tokens, inputLine, pattern);
     if (finalStates.contains(currStatePos.getState())) {
-      System.out.println("Matched");
+//      System.out.println("Matched");
       System.exit(0);
     } else {
       System.exit(1);
