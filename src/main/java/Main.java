@@ -9,10 +9,6 @@ import static machines.RegexLexeme.*;
 
 public class Main {
 
-  private static final List<States> finalStates =
-          List.of(LITERAL_MATCHED, DIGIT_MATCHED, WORD_CLASS_MATCHED,
-                  POS_GROUP_MATCHED, NEG_GROUP_MATCHED, WILDCARD_MATCHED, END_STATE);
-
   public static void main(String[] args) {
     if (args.length != 2 || !args[0].equals("-E")) {
       System.out.println("Usage: ./your_program.sh -E <pattern>");
@@ -27,7 +23,7 @@ public class Main {
     List<RegexToken> tokens = lexPattern(pattern);
 
     StatePos currStatePos = RegexMatcher.match(tokens, inputLine, pattern);
-    if (finalStates.contains(currStatePos.getState())) {
+    if (RegexMatcher.FINAL_STATES.contains(currStatePos.getState())) {
 //      System.out.println("Matched");
       System.exit(0);
     } else {

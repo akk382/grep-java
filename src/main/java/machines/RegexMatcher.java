@@ -12,6 +12,10 @@ public class RegexMatcher {
           List.of(LITERAL_MATCHED, DIGIT_MATCHED, WORD_CLASS_MATCHED,
                   POS_GROUP_MATCHED, NEG_GROUP_MATCHED, WILDCARD_MATCHED, END_STATE);
 
+  public static final List<States> NOT_MATCHED_STATES =
+          List.of(LITERAL_NOT_MATCHED, DIGIT_NOT_MATCHED, WORD_CLASS_NOT_MATCHED,
+                  POS_GROUP_NOT_MATCHED, NEG_GROUP_NOT_MATCHED, WILDCARD_NOT_MATCHED);
+
   public static StatePos match(List<RegexToken> tokens, String inputLine, String pattern) {
     StatePos currState = new StatePos(START_STATE, 0);
     currState.setMatchInReverseDirection(tokens.getLast().getLexeme() == ENDS_WITH);
@@ -31,7 +35,7 @@ public class RegexMatcher {
         currState = tokens.get(tokenPos).getLexeme()
                 .match(currState, inputLine, pattern, tokens, tokenPos);
         tokenPos = currState.isMatchInReverseDirection() ? tokenPos - 1 : tokenPos + 1;
-      } while (tokenPos > -1 && tokenPos < tokens.size() && FINAL_STATES.contains(currState.getState()));
+      } while (tokenPos > -1 && tokenPos < tokens.size() && !NOT_MATCHED_STATES.contains(currState.getState()));
     } while (!currState.isMatchInReverseDirection() &&
             currState.getPrevMatchStartPos() < inputLine.length() && !FINAL_STATES.contains(currState.getState()));
 
@@ -48,7 +52,7 @@ public class RegexMatcher {
         currState = tokens.get(tokenPos).getLexeme()
                 .match(currState, inputLine, pattern, tokens, tokenPos);
         tokenPos = currState.isMatchInReverseDirection() ? tokenPos - 1 : tokenPos + 1;
-      } while (tokenPos > -1 && tokenPos < tokens.size() && FINAL_STATES.contains(currState.getState()));
+      } while (tokenPos > -1 && tokenPos < tokens.size() && !NOT_MATCHED_STATES.contains(currState.getState()));
     } while (!currState.isMatchInReverseDirection() &&
             currState.getPrevMatchStartPos() < inputLine.length() && !FINAL_STATES.contains(currState.getState()));
 
