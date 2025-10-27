@@ -14,11 +14,14 @@ public class Tester {
 //    test(new String[]{"-E", "apple$"}, "mango_apple");
 //    test(new String[]{"-E", "^banana$"}, "banana_banana");
 //    test(new String[]{"-E", "^banana$"}, "banana");
+//    test(new String[]{"-E", "c\\d+\\dt"}, "c125ts"); // TODO
 //    test(new String[]{"-E", "ca+at"}, "caaats");
 //    test(new String[]{"-E", "ca+t"}, "act");
 //    test(new String[]{"-E", "ca?a?t"}, "cat");
+//    test(new String[]{"-E", "c\\d?\\d?t"}, "c12t");
 //    test(new String[]{"-E", "cat"}, "cajsfcat");
     test(new String[]{"-E", "g.+gol"}, "goøö0Ogol");
+//    test(new String[]{"-E", ".gol"}, "goøö0Ogol");
 
     System.setIn(originalSystemIn);
   }

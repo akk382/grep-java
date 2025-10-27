@@ -1,21 +1,29 @@
 package machines;
 
-import java.util.ArrayList;
-import java.util.List;
+//class Pair {
+//  int val1;
+//  int val2;
+//
+//  public Pair(int val1, int val2) {
+//    this.val1 = val1;
+//    this.val2 = val2;
+//  }
+//}
 
 public class StatePos {
   private States state;
   private int currInputPos;
-  private boolean matchWildCardAtTheEnd;
+  private int prevMatchStartPos;
   private boolean matchInReverseDirection;
-  private List<Integer> matchWildStart = new ArrayList<>();
-  private List<Integer> matchWildEnds = new ArrayList<>();
+//  private boolean matchWildCardAtTheEnd;
+//  private Map<RegexLexeme, List<Pair>> matchWildsWithPositions = new HashMap<>();
 
   public StatePos(States state, int currInputPos) {
     this.state = state;
     this.currInputPos = currInputPos;
-    this.matchWildCardAtTheEnd = false;
+    this.prevMatchStartPos = 0;
     this.matchInReverseDirection = false;
+//    this.matchWildCardAtTheEnd = false;
   }
 
   public States getState() {
@@ -34,13 +42,20 @@ public class StatePos {
     this.currInputPos = currInputPos;
   }
 
-  public boolean isMatchWildCardAtTheEnd() {
-    return matchWildCardAtTheEnd;
+  public int getPrevMatchStartPos() {
+    return prevMatchStartPos;
   }
 
-  public void setMatchWildCardAtTheEnd(boolean matchWildCardAtTheEnd) {
-    this.matchWildCardAtTheEnd = matchWildCardAtTheEnd;
+  public void setPrevMatchStartPos(int prevMatchStartPos) {
+    this.prevMatchStartPos = prevMatchStartPos;
   }
+//  public boolean isMatchWildCardAtTheEnd() {
+//    return matchWildCardAtTheEnd;
+//  }
+//
+//  public void setMatchWildCardAtTheEnd(boolean matchWildCardAtTheEnd) {
+//    this.matchWildCardAtTheEnd = matchWildCardAtTheEnd;
+//  }
 
   public boolean isMatchInReverseDirection() {
     return matchInReverseDirection;
@@ -50,19 +65,11 @@ public class StatePos {
     this.matchInReverseDirection = matchInReverseDirection;
   }
 
-  public List<Integer> getMatchWildStart() {
-    return matchWildStart;
-  }
-
-  public void setMatchWildStart(List<Integer> matchWildStart) {
-    this.matchWildStart = matchWildStart;
-  }
-
-  public List<Integer> getMatchWildEnds() {
-    return matchWildEnds;
-  }
-
-  public void setMatchWildEnds(List<Integer> matchWildEnds) {
-    this.matchWildEnds = matchWildEnds;
-  }
+//  public Map<RegexLexeme, List<Pair>> getMatchWildsWithPositions() {
+//    return matchWildsWithPositions;
+//  }
+//
+//  public void setMatchWildsWithPositions(Map<RegexLexeme, List<Pair>> matchWildsWithPositions) {
+//    this.matchWildsWithPositions = matchWildsWithPositions;
+//  }
 }

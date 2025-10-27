@@ -8,6 +8,11 @@ import static machines.States.*;
 import static machines.RegexLexeme.*;
 
 public class Main {
+
+  private static final List<States> finalStates =
+          List.of(LITERAL_MATCHED, DIGIT_MATCHED, WORD_CLASS_MATCHED,
+                  POS_GROUP_MATCHED, NEG_GROUP_MATCHED, WILDCARD_MATCHED, END_STATE);
+
   public static void main(String[] args) {
     if (args.length != 2 || !args[0].equals("-E")) {
       System.out.println("Usage: ./your_program.sh -E <pattern>");
@@ -21,26 +26,13 @@ public class Main {
     System.err.println("Logs from your program will appear here!");
     List<RegexToken> tokens = lexPattern(pattern);
 
-    StatePos currState = new StatePos(START_STATE, 0);
-    currState.setMatchInReverseDirection(tokens.getLast().getLexeme() == ENDS_WITH);
-    currState.setState(currState.isMatchInReverseDirection() ? END_STATE :  START_STATE);
-    currState.setCurrInputPos(currState.isMatchInReverseDirection() ? inputLine.length() - 1 : 0);
-
-    int tokenPos = currState.isMatchInReverseDirection() ? tokens.size() - 1 : 0;
-
-    while (tokenPos > -1 && tokenPos < tokens.size()) {
-      currState = tokens.get(tokenPos).getLexeme()
-              .match(currState, inputLine, pattern, tokens, tokenPos);
-
-      // TODO: If the input is consumes completely, then have we found the match already ??
-      if (currState.getCurrInputPos() >= inputLine.length())
-        break;
-      tokenPos = currState.isMatchInReverseDirection() ? tokenPos - 1 : tokenPos + 1;
-    }
-    if (currState.isMatchWildCardAtTheEnd() && !tokens.getFirst().getLexeme().matchWildCardAtTheEnd(currState, inputLine))
+    StatePos currStatePos = RegexMatcher.match(tokens, inputLine, pattern);
+    if (finalStates.contains(currStatePos.getState())) {
+      System.out.println("Matched");
+      System.exit(0);
+    } else {
       System.exit(1);
-    System.out.println("Matched");
-    System.exit(0);
+    }
   }
 
   private static List<RegexToken> lexPattern(String pattern) {

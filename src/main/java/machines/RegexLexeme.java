@@ -32,13 +32,12 @@ public enum RegexLexeme {
   LITERAL {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      if (currState.getState() != START_STATE) {
+      if (currState.getState() != START_STATE || currState.getState() != LITERAL_MATCH_ANYWHERE) {
         currState.setState(LITERAL_MATCH_NEXT);
       } else {
         currState.setState(LITERAL_MATCH_ANYWHERE);
       }
       currState = literalMatcher(inputLine, tokens.get(tokenPos).getValue(), currState);
-      if (currState.getState() != LITERAL_MATCHED) System.exit(1);
 
       return currState;
     }
@@ -46,7 +45,7 @@ public enum RegexLexeme {
   LITERAL_PLUS {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      if (currState.getState() != START_STATE) {
+      if (currState.getState() != START_STATE || currState.getState() != LITERAL_MATCH_ANYWHERE) {
         currState.setState(LITERAL_MATCH_NEXT);
       } else {
         currState.setState(LITERAL_MATCH_ANYWHERE);
@@ -58,12 +57,12 @@ public enum RegexLexeme {
         currState = literalMatcher(inputLine, tokens.get(tokenPos).getValue(), currState);
         i++;
       } while (i < minOcc && currState.getState() == LITERAL_MATCHED);
-      if (currState.getState() != LITERAL_MATCHED) System.exit(1);
-      else {
+      if (i == minOcc && currState.getState() == LITERAL_MATCHED) {
         while (currState.getState() == LITERAL_MATCHED) {
           currState.setState(LITERAL_MATCH_NEXT);
           currState = literalMatcher(inputLine, tokens.get(tokenPos).getValue(), currState);
         }
+        currState.setState(LITERAL_MATCHED);
       }
       return currState;
     }
@@ -77,7 +76,8 @@ public enum RegexLexeme {
   LITERAL_QUE {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? LITERAL_MATCH_NEXT : LITERAL_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE  ||
+              currState.getState() != LITERAL_MATCH_ANYWHERE ? LITERAL_MATCH_NEXT : LITERAL_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int maxOcc = tokens.get(tokenPos).getMaxOccurrences();
       int i = 0;
@@ -86,12 +86,8 @@ public enum RegexLexeme {
         currState = literalMatcher(inputLine, tokens.get(tokenPos).getValue(), currState);
         i++;
       } while (i < maxOcc && currState.getState() == LITERAL_MATCHED);
-      if (i < minOcc) System.exit(1);
-      else if (i == maxOcc && currState.getState() == LITERAL_MATCHED) {
-        currState.setState(LITERAL_MATCH_NEXT);
-        if (literalMatcher(inputLine, tokens.get(tokenPos).getValue(), currState).getState() == LITERAL_MATCHED)
-          System.exit(1);
-      }
+      if (i < minOcc) currState.setState(LITERAL_NOT_MATCHED);
+      else currState.setState(LITERAL_MATCHED);
       return currState;
     }
   }, // ?: one or none
@@ -99,16 +95,17 @@ public enum RegexLexeme {
   DIGIT {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? DIGIT_MATCH_NEXT : DIGIT_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != DIGIT_MATCH_ANYWHERE ? DIGIT_MATCH_NEXT : DIGIT_MATCH_ANYWHERE);
       currState = digitMatcher(currState, inputLine);
-      if (currState.getState() != DIGIT_MATCHED) System.exit(1);
       return currState;
     }
   },
   DIGIT_PLUS {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? DIGIT_MATCH_NEXT : DIGIT_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != DIGIT_MATCH_ANYWHERE ? DIGIT_MATCH_NEXT : DIGIT_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int i = 0;
       do {
@@ -116,12 +113,12 @@ public enum RegexLexeme {
         currState = digitMatcher(currState, inputLine);
         i++;
       } while (i < minOcc && currState.getState() == DIGIT_MATCHED);
-      if (currState.getState() != DIGIT_MATCHED) System.exit(1);
-      else {
-        while (currState.getState() == DIGIT_MATCHED) {
-          currState.setState(DIGIT_MATCH_NEXT);
-          currState = digitMatcher(currState, inputLine);
-        }
+      if (i == minOcc && currState.getState() == DIGIT_MATCHED) {
+      while (currState.getState() == DIGIT_MATCHED) {
+        currState.setState(DIGIT_MATCH_NEXT);
+        currState = digitMatcher(currState, inputLine);
+      }
+        currState.setState(DIGIT_MATCHED);
       }
       return currState;
     }
@@ -135,7 +132,8 @@ public enum RegexLexeme {
   DIGIT_QUE {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? DIGIT_MATCH_NEXT : DIGIT_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != DIGIT_MATCH_ANYWHERE ? DIGIT_MATCH_NEXT : DIGIT_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int maxOcc = tokens.get(tokenPos).getMaxOccurrences();
       int i = 0;
@@ -144,12 +142,8 @@ public enum RegexLexeme {
         currState = digitMatcher(currState, inputLine);
         i++;
       } while (i < maxOcc && currState.getState() == DIGIT_MATCHED);
-      if (i < minOcc) System.exit(1);
-      else if (i == maxOcc && currState.getState() == DIGIT_MATCHED) {
-        currState.setState(DIGIT_MATCH_NEXT);
-        if (digitMatcher(currState, inputLine).getState() == DIGIT_MATCHED)
-          System.exit(1);
-      }
+      if (i < minOcc) currState.setState(DIGIT_NOT_MATCHED);
+      else currState.setState(DIGIT_MATCHED);
       return currState;
     }
   },
@@ -164,16 +158,17 @@ public enum RegexLexeme {
   WORD {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? WORD_CLASS_MATCH_NEXT : WORD_CLASS_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != WORD_CLASS_MATCH_ANYWHERE ? WORD_CLASS_MATCH_NEXT : WORD_CLASS_MATCH_ANYWHERE);
       currState = characterMatcher(inputLine, currState);
-      if (currState.getState() != WORD_CLASS_MATCHED) System.exit(1);
       return currState;
     }
   },
   WORD_PLUS {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? WORD_CLASS_MATCH_NEXT : WORD_CLASS_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE  ||
+              currState.getState() != WORD_CLASS_MATCH_ANYWHERE? WORD_CLASS_MATCH_NEXT : WORD_CLASS_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int i = 0;
       do {
@@ -181,12 +176,12 @@ public enum RegexLexeme {
         currState = characterMatcher(inputLine, currState);
         i++;
       } while (i < minOcc && currState.getState() == WORD_CLASS_MATCHED);
-      if (currState.getState() != WORD_CLASS_MATCHED) System.exit(1);
-      else {
-        while (currState.getState() == WORD_CLASS_MATCHED) {
-          currState.setState(WORD_CLASS_MATCH_NEXT);
-          currState = characterMatcher(inputLine, currState);
-        }
+      if (i == minOcc && currState.getState() == WORD_CLASS_MATCHED) {
+      while (currState.getState() == WORD_CLASS_MATCHED) {
+        currState.setState(WORD_CLASS_MATCH_NEXT);
+        currState = characterMatcher(inputLine, currState);
+      }
+        currState.setState(WORD_CLASS_MATCHED);
       }
       return currState;
     }
@@ -200,7 +195,8 @@ public enum RegexLexeme {
   WORD_QUE {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? WORD_CLASS_MATCH_NEXT : WORD_CLASS_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != WORD_CLASS_MATCH_ANYWHERE ? WORD_CLASS_MATCH_NEXT : WORD_CLASS_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int maxOcc = tokens.get(tokenPos).getMaxOccurrences();
       int i = 0;
@@ -209,12 +205,8 @@ public enum RegexLexeme {
         currState = digitMatcher(currState, inputLine);
         i++;
       } while (i < maxOcc && currState.getState() == WORD_CLASS_MATCHED);
-      if (i < minOcc) System.exit(1);
-      else if (i == maxOcc && currState.getState() == WORD_CLASS_MATCHED) {
-        currState.setState(WORD_CLASS_MATCH_NEXT);
-        if (characterMatcher(inputLine, currState).getState() == WORD_CLASS_MATCHED)
-          System.exit(1);
-      }
+      if (i < minOcc) currState.setState(WORD_CLASS_NOT_MATCHED);
+      else currState.setState(WORD_CLASS_MATCHED);
       return currState;
     }
   },
@@ -229,16 +221,17 @@ public enum RegexLexeme {
   POSITIVE_GROUP {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? POS_GROUP_MATCH_NEXT : POS_GROUP_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != POS_GROUP_MATCH_ANYWHERE ? POS_GROUP_MATCH_NEXT : POS_GROUP_MATCH_ANYWHERE);
       currState = positiveMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState);
-      if (currState.getState() != POS_GROUP_MATCHED) System.exit(1);
       return currState;
     }
   },
   POSITIVE_GROUP_PLUS {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? POS_GROUP_MATCH_NEXT : POS_GROUP_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != POS_GROUP_MATCH_ANYWHERE ? POS_GROUP_MATCH_NEXT : POS_GROUP_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int i = 0;
       do {
@@ -247,12 +240,12 @@ public enum RegexLexeme {
         i++;
       } while (i < minOcc && currState.getState() == POS_GROUP_MATCHED);
 
-      if (currState.getState() != POS_GROUP_MATCHED) System.exit(1);
-      else {
-        while (currState.getState() == POS_GROUP_MATCHED) {
-          currState.setState(POS_GROUP_MATCH_NEXT);
-          currState = positiveMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState);
-        }
+      if (i == minOcc && currState.getState() == POS_GROUP_MATCHED) {
+      while (currState.getState() == POS_GROUP_MATCHED) {
+        currState.setState(POS_GROUP_MATCH_NEXT);
+        currState = positiveMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState);
+      }
+        currState.setState(POS_GROUP_MATCHED);
       }
       return currState;
     }
@@ -266,7 +259,8 @@ public enum RegexLexeme {
   POSITIVE_GROUP_QUE {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? POS_GROUP_MATCH_NEXT : POS_GROUP_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != POS_GROUP_MATCH_ANYWHERE ? POS_GROUP_MATCH_NEXT : POS_GROUP_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int maxOcc = tokens.get(tokenPos).getMaxOccurrences();
       int i = 0;
@@ -275,13 +269,8 @@ public enum RegexLexeme {
         currState = positiveMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState);
         i++;
       } while (i < maxOcc && currState.getState() == POS_GROUP_MATCHED);
-      if (i < minOcc) System.exit(1);
-      else if (i == maxOcc && currState.getState() == POS_GROUP_MATCHED) {
-        currState.setState(POS_GROUP_MATCH_NEXT);
-        if (positiveMatch(inputLine,
-                pattern.substring(tokens.get(tokenPos).getGroupPos()), currState).getState() == POS_GROUP_MATCHED)
-          System.exit(1);
-      }
+      if (i < minOcc) currState.setState(POS_GROUP_NOT_MATCHED);
+      else currState.setState(POS_GROUP_MATCHED);
       return currState;
     }
   },
@@ -289,16 +278,17 @@ public enum RegexLexeme {
   NEGATIVE_GROUP {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? NEG_GROUP_MATCH_NEXT : NEG_GROUP_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != NEG_GROUP_MATCH_ANYWHERE ? NEG_GROUP_MATCH_NEXT : NEG_GROUP_MATCH_ANYWHERE);
       currState = negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState);
-      if (currState.getState() != NEG_GROUP_MATCHED) System.exit(1);
       return currState;
     }
   },
   NEGATIVE_GROUP_PLUS {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? NEG_GROUP_MATCH_NEXT : NEG_GROUP_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != NEG_GROUP_MATCH_ANYWHERE ? NEG_GROUP_MATCH_NEXT : NEG_GROUP_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int i = 0;
       do {
@@ -307,13 +297,13 @@ public enum RegexLexeme {
         i++;
       } while (i < minOcc && currState.getState() == NEG_GROUP_MATCHED);
 
-      if (currState.getState() != NEG_GROUP_MATCHED) System.exit(1);
-      else {
-        while (currState.getState() == NEG_GROUP_MATCHED) {
-          currState.setState(NEG_GROUP_MATCH_NEXT);
-          currState = negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState);
-        }
+      if (i == minOcc && currState.getState() == NEG_GROUP_MATCHED) {
+      while (currState.getState() == NEG_GROUP_MATCHED) {
+        currState.setState(NEG_GROUP_MATCH_NEXT);
+        currState = negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState);
       }
+      currState.setState(NEG_GROUP_MATCHED);
+    }
       return currState;
     }
   },
@@ -326,7 +316,8 @@ public enum RegexLexeme {
   NEGATIVE_GROUP_QUE {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
-      currState.setState(currState.getState() != START_STATE ? NEG_GROUP_MATCH_NEXT : NEG_GROUP_MATCH_ANYWHERE);
+      currState.setState(currState.getState() != START_STATE ||
+              currState.getState() != NEG_GROUP_MATCH_ANYWHERE ? NEG_GROUP_MATCH_NEXT : NEG_GROUP_MATCH_ANYWHERE);
       int minOcc = tokens.get(tokenPos).getMinOccurrences();
       int maxOcc = tokens.get(tokenPos).getMaxOccurrences();
       int i = 0;
@@ -335,13 +326,8 @@ public enum RegexLexeme {
         currState = negativeMatch(inputLine, pattern.substring(tokens.get(tokenPos).getGroupPos()), currState);
         i++;
       } while (i < maxOcc && currState.getState() == NEG_GROUP_MATCHED);
-      if (i < minOcc) System.exit(1);
-      else if (i == maxOcc && currState.getState() == NEG_GROUP_MATCHED) {
-        currState.setState(NEG_GROUP_MATCH_NEXT);
-        if (negativeMatch(inputLine,
-                pattern.substring(tokens.get(tokenPos).getGroupPos()), currState).getState() == NEG_GROUP_MATCHED)
-          System.exit(1);
-      }
+      if (i < minOcc) currState.setState(NEG_GROUP_NOT_MATCHED);
+      else currState.setState(NEG_GROUP_MATCHED);
       return currState;
     }
   },
@@ -357,33 +343,41 @@ public enum RegexLexeme {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
       if (currState.getState() == START_STATE) {
-        currState.setMatchWildCardAtTheEnd(true);
+        if (currState.isMatchInReverseDirection() && inputLine.charAt(currState.getCurrInputPos()) == '\n') {
+          System.exit(1);
+        } else if (currState.isMatchInReverseDirection()) {
+          currState.setPrevMatchStartPos(currState.getCurrInputPos());
+          currState.setCurrInputPos(currState.getCurrInputPos() - 1);
+          currState.setState(WILDCARD_MATCHED);
+          return currState;
+        } else {
+          while (currState.getCurrInputPos() < inputLine.length() &&
+                  inputLine.charAt(currState.getCurrInputPos()) == '\n') {
+            currState.setCurrInputPos(currState.getCurrInputPos() + 1);
+          }
+          if (currState.getCurrInputPos() < inputLine.length() &&
+                  inputLine.charAt(currState.getCurrInputPos()) != '\n') {
+            currState.setPrevMatchStartPos(currState.getCurrInputPos());
+            currState.setCurrInputPos(currState.getCurrInputPos() + 1);
+            currState.setState(WILDCARD_MATCHED);
+          } else {
+            System.exit(1);
+          }
+        }
       } else if (inputLine.charAt(currState.getCurrInputPos()) == '\n') {
-//        currState.setState(WILDCARD_NOT_MATCHED);
-        System.exit(1);
+        currState.setState(WILDCARD_NOT_MATCHED);
       } else {
         currState.setState(WILDCARD_MATCHED);
         currState.setCurrInputPos(currState.getCurrInputPos() + 1);
       }
       return currState;
     }
-
-    @Override
-    public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
-      for (int i = 0; i < currState.getMatchWildStart().size(); i++) {
-        for (int j = currState.getMatchWildStart().get(i); j <= currState.getMatchWildEnds().get(i); j++) {
-          if (inputLine.charAt(i) == '\n')
-            return false;
-        }
-      }
-      return true;
-    }
   }, // '.' -> matches any character except new line.
   WILD_CARD_PLUS {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
       if (currState.getState() == START_STATE) {
-        currState.setMatchWildCardAtTheEnd(true);
+//        currState.setMatchWildCardAtTheEnd(true);
       } else if (inputLine.charAt(currState.getCurrInputPos()) == '\n') {
         currState.setState(WILDCARD_NOT_MATCHED);
         System.exit(1);
@@ -392,8 +386,7 @@ public enum RegexLexeme {
         // Then try to match from the above set position until the start of the rest of the pattern.
         // If there is any new line in between, then not matched.
         // Else matched.
-        currState.setMatchWildCardAtTheEnd(true);
-        currState.getMatchWildStart().add(currState.getCurrInputPos());
+//        currState.setMatchWildCardAtTheEnd(true);
         currState.setCurrInputPos(currState.getCurrInputPos() + 1);
         currState.setState(getNextState(tokens, tokenPos));
       }
@@ -417,13 +410,7 @@ public enum RegexLexeme {
 
     @Override
     public boolean matchWildCardAtTheEnd(StatePos currState, String inputLine) {
-      for (int i = 0; i < currState.getMatchWildStart().size(); i++) {
-        for (int j = currState.getMatchWildStart().get(i); j <= currState.getMatchWildEnds().get(i); j++) {
-          if (inputLine.charAt(i) == '\n')
-            return false;
-        }
-      }
-      return true;
+      return false;
     }
   },
   WILD_CARD_STAR {
@@ -442,7 +429,7 @@ public enum RegexLexeme {
     @Override
     public StatePos match(StatePos currState, String inputLine, String pattern, List<RegexToken> tokens, int tokenPos) {
       if (currState.getState() == START_STATE) {
-        currState.setMatchWildCardAtTheEnd(true);
+//        currState.setMatchWildCardAtTheEnd(true);
       } else if (inputLine.charAt(currState.getCurrInputPos()) != '\n') {
           currState.setState(WILDCARD_MATCHED);
           currState.setCurrInputPos(currState.getCurrInputPos() + 1);
@@ -481,13 +468,11 @@ public enum RegexLexeme {
 
     return switch (currStatePos.getState()) {
       case NEG_GROUP_MATCH_ANYWHERE -> {
-        for (int i = 0; i < input.length(); i++) {
+        for (int i = currStatePos.getCurrInputPos(); i < input.length(); i++) {
           if (!captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(i))) {
             currStatePos.setState(States.NEG_GROUP_MATCHED);
             currStatePos.setCurrInputPos(i + 1);
-            if (currStatePos.getMatchWildEnds().size() < currStatePos.getMatchWildStart().size()) {
-              currStatePos.getMatchWildEnds().add(i);
-            }
+            currStatePos.setPrevMatchStartPos(i);
             yield currStatePos;
           }
         }
@@ -525,13 +510,11 @@ public enum RegexLexeme {
 
     return switch (currStatePos.getState()) {
       case POS_GROUP_MATCH_ANYWHERE -> {
-        for (int i = 0; i < input.length(); i++) {
+        for (int i = currStatePos.getCurrInputPos(); i < input.length(); i++) {
           if (captureGroups.get(CaptureGroupType.CHAR).contains(input.charAt(i))) {
             currStatePos.setState(States.POS_GROUP_MATCHED);
             currStatePos.setCurrInputPos(i + 1);
-            if (currStatePos.getMatchWildEnds().size() < currStatePos.getMatchWildStart().size()) {
-              currStatePos.getMatchWildEnds().add(i);
-            }
+            currStatePos.setPrevMatchStartPos(i);
             yield currStatePos;
           }
         }
@@ -591,13 +574,11 @@ public enum RegexLexeme {
         yield currentStatePos;
       }
       case WORD_CLASS_MATCH_ANYWHERE -> {
-        for (int i = 0; i < input.length(); i++) {
+        for (int i = currentStatePos.getCurrInputPos(); i < input.length(); i++) {
           if (Character.isLetterOrDigit(input.charAt(i)) || '_' == input.charAt(i)) {
             currentStatePos.setState(States.WORD_CLASS_MATCHED);
             currentStatePos.setCurrInputPos(i + 1);
-            if (currentStatePos.getMatchWildEnds().size() < currentStatePos.getMatchWildStart().size()) {
-              currentStatePos.getMatchWildEnds().add(i);
-            }
+            currentStatePos.setPrevMatchStartPos(i);
             yield currentStatePos;
           }
         }
@@ -617,7 +598,7 @@ public enum RegexLexeme {
       throw new UnsupportedOperationException("This method only supports DIGIT matcher.");
     }
     if (currentStatePos.getCurrInputPos() >= input.length()) {
-      return new StatePos(States.DIGIT_NOT_MATCHED, currentStatePos.getCurrInputPos());
+      currentStatePos.setState(States.DIGIT_NOT_MATCHED);
     }
     return switch (currentStatePos.getState()) {
       case DIGIT_MATCH_NEXT:
@@ -634,13 +615,11 @@ public enum RegexLexeme {
       }
       case DIGIT_MATCH_ANYWHERE:
       {
-        for (int i = 0; i < input.length(); i++) {
+        for (int i = currentStatePos.getCurrInputPos(); i < input.length(); i++) {
           if (Character.isDigit(input.charAt(i))) {
             currentStatePos.setState(States.DIGIT_MATCHED);
             currentStatePos.setCurrInputPos(i + 1);
-            if (currentStatePos.getMatchWildEnds().size() < currentStatePos.getMatchWildStart().size()) {
-              currentStatePos.getMatchWildEnds().add(i);
-            }
+            currentStatePos.setPrevMatchStartPos(i);
             yield currentStatePos;
           }
         }
@@ -660,7 +639,7 @@ public enum RegexLexeme {
       throw new UnsupportedOperationException("This method only supports LITERAL matcher.");
     }
     if (currentStatePos.getCurrInputPos() >= input.length()) {
-      return new StatePos(States.LITERAL_NOT_MATCHED, currentStatePos.getCurrInputPos());
+      currentStatePos.setState(LITERAL_NOT_MATCHED);
     }
     return switch (currentStatePos.getState()) {
       case LITERAL_MATCH_NEXT: {
@@ -679,9 +658,7 @@ public enum RegexLexeme {
           if (input.charAt(i) == pattern) {
             currentStatePos.setState(States.LITERAL_MATCHED);
             currentStatePos.setCurrInputPos(i + 1);
-            if (currentStatePos.getMatchWildEnds().size() < currentStatePos.getMatchWildStart().size()) {
-              currentStatePos.getMatchWildEnds().add(i);
-            }
+            currentStatePos.setPrevMatchStartPos(i);
             yield currentStatePos;
           }
         }
