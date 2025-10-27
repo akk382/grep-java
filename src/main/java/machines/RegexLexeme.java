@@ -394,6 +394,7 @@ public enum RegexLexeme {
           currState.setPrevMatchStartPos(currState.getCurrInputPos());
           currState.setCurrInputPos(currState.getCurrInputPos());
           currState = RegexMatcher.match(tokens, tokenPos + 1, inputLine, pattern, currState);
+          if (!RegexMatcher.FINAL_STATES.contains(currState.getState())) System.exit(1);
           if (currState.getPrevMatchStartPos() - 1 >= 0 && inputLine.charAt(currState.getPrevMatchStartPos() - 1) != '\n') {
             currState.setState(WILDCARD_MATCHED);
             System.exit(0);
@@ -414,6 +415,7 @@ public enum RegexLexeme {
           currState.setPrevMatchStartPos(currState.getCurrInputPos());
           currState.setCurrInputPos(currState.getCurrInputPos());
           currState = RegexMatcher.match(tokens, tokenPos + 1, inputLine, pattern, currState);
+          if (!RegexMatcher.FINAL_STATES.contains(currState.getState())) System.exit(1);
           for (int i = currPos + 1; i < currState.getPrevMatchStartPos(); i++) {
             if (inputLine.charAt(i) == '\n') System.exit(1);
           }

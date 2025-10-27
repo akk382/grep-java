@@ -23,6 +23,7 @@ public class Tester {
 //    test(new String[]{"-E", ".+gol"}, "goøö0Ogol");
 //    test(new String[]{"-E", "g.+gol"}, "goøö0Ogol");
 //    test(new String[]{"-E", ".gol"}, "goøö0Ogol");
+    test(new String[]{"-E", "g.+gol"}, "gol");
 
     System.setIn(originalSystemIn);
   }
