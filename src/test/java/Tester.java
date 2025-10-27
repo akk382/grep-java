@@ -24,7 +24,8 @@ public class Tester {
 //    test(new String[]{"-E", "g.+gol"}, "goøö0Ogol");
 //    test(new String[]{"-E", ".gol"}, "goøö0Ogol");
 //    test(new String[]{"-E", "g.+gol"}, "gol");
-    test(new String[]{"-E", "^mango"}, "mango_grape");
+//    test(new String[]{"-E", "^mango"}, "mango_grape");
+    test(new String[]{"-E", "^raspberry"}, "mango_raspberry");
 
     System.setIn(originalSystemIn);
   }

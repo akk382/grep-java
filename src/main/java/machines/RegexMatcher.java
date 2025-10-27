@@ -3,6 +3,7 @@ package machines;
 import java.util.List;
 
 import static machines.RegexLexeme.ENDS_WITH;
+import static machines.RegexLexeme.STARTS_WITH;
 import static machines.States.*;
 import static machines.States.WILDCARD_MATCHED;
 
@@ -36,7 +37,7 @@ public class RegexMatcher {
                 .match(currState, inputLine, pattern, tokens, tokenPos);
         tokenPos = currState.isMatchInReverseDirection() ? tokenPos - 1 : tokenPos + 1;
       } while (tokenPos > -1 && tokenPos < tokens.size() && !NOT_MATCHED_STATES.contains(currState.getState()));
-    } while (!currState.isMatchInReverseDirection() &&
+    } while (!currState.isMatchInReverseDirection() && tokens.getFirst().getLexeme() != STARTS_WITH &&
             currState.getPrevMatchStartPos() < inputLine.length() && !FINAL_STATES.contains(currState.getState()));
 
     return currState;
@@ -53,7 +54,7 @@ public class RegexMatcher {
                 .match(currState, inputLine, pattern, tokens, tokenPos);
         tokenPos = currState.isMatchInReverseDirection() ? tokenPos - 1 : tokenPos + 1;
       } while (tokenPos > -1 && tokenPos < tokens.size() && !NOT_MATCHED_STATES.contains(currState.getState()));
-    } while (!currState.isMatchInReverseDirection() &&
+    } while (!currState.isMatchInReverseDirection() && tokens.getFirst().getLexeme() != STARTS_WITH &&
             currState.getPrevMatchStartPos() < inputLine.length() && !FINAL_STATES.contains(currState.getState()));
 
     return currState;
